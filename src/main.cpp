@@ -120,17 +120,13 @@ int main() {
 
 	if (blockPosPlane.hit) {
 		Vector3 point = blockPosPlane.point;
-		int x = floor(point.x/blockSize)*blockSize;
-		int y = floor(point.y/blockSize)*blockSize;
-		int z = floor(point.z/blockSize)*blockSize;
+		int x = std::round(point.x/blockSize)*blockSize;
+		int y = std::round(point.y/blockSize)*blockSize;
+		int z = std::round(point.z/blockSize)*blockSize;
 
 		if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
 			Vector3 pos = (Vector3){(float)x, (float)y+0.5f, (float)z};
 			blockPositions.push_back(pos);
-			for (auto &pos_index : blockPositions) {
-				std::cout << pos_index.x << " " << pos_index.y << " " << pos_index.z << "\n";
-				std::cout << "DONE!" << std::endl;
-			}
 		}
 	}
 
@@ -143,6 +139,15 @@ int main() {
 				R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
 				for (auto &pos_index : blockPositions) {
 					R3D_DrawMesh(block, blockMaterial, pos_index, (float)blockSize);
+				}
+				if (blockPosPlane.hit) {
+					Vector3 point = blockPosPlane.point;
+					int x = std::round(point.x/blockSize)*blockSize;
+					int y = std::round(point.y/blockSize)*blockSize;
+					int z = std::round(point.z/blockSize)*blockSize;
+
+					R3D_DrawMesh(cube, cubeMaterial, point, 0.1f);
+					R3D_DrawMesh(cube, material, (Vector3){(float)x, (float)y, (float)z}, 0.1f);
 				}
 			R3D_End();
 
