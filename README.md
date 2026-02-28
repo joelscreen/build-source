@@ -21,7 +21,3 @@ Occasionally, build trials might spawn, which give OP loot but require coins.
 - Ctrl + W for sprinting
 - Escape for pausing the game or closing a menu
 
-## Items to be added in the shop
-<img width="625" height="747" alt="image" src="https://github.com/user-attachments/assets/cfbd8f8f-c1d3-48c7-9cae-fbaf84590485" />
-
-
