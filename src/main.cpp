@@ -171,7 +171,7 @@ int main() {
 						DrawText("Double clicker", 37, 140, 20, BLACK);
 						DrawText("$100", 85, 160, 20, BLACK);
 					}
-					if (coins < 200 && framesTarget != 1) {
+					if (coins < 200 || framesTarget == 1) {
 						DrawText("Auto clicker", 190, 140, 20, GRAY);
 						DrawText("$200", 225, 160, 20, GRAY);
 					}
@@ -180,7 +180,6 @@ int main() {
 						DrawText("$200", 225, 160, 20, BLACK);
 					}
 				}
-				std::cout << framesTarget << "\n";
 				if (IsKeyDown(KEY_ESCAPE)) {
 					openShopMenu = false;
 					menu = false;
@@ -191,7 +190,7 @@ int main() {
 					doubleClicker = true;
 					clickerVal *= 2;
 				}
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 180 && GetMouseX() < 320 && GetMouseY() > 60 && GetMouseY() < 195 && coins >= 200) {
+				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 180 && GetMouseX() < 320 && GetMouseY() > 60 && GetMouseY() < 195 && coins >= 200 && framesTarget != 1) {
 					autoClicker = true;
 					coins -= 200;
 					autoClickerVal += 1;
