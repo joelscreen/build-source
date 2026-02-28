@@ -1,38 +1,27 @@
-# Raylib + r3d Starter (CMake + MinGW)
+# Build
+## Concept
+A 3D RPG similar to cookie clicker with building and fighting aspects.
 
-This is a minimal template that fetches and builds the latest `r3d` (and its dependencies `raylib` and `assimp`) automatically via CMake's FetchContent. No manual cloning into `external/` is required.
+## Overview
+Genre: RPG / Survival / Action
 
-## Prerequisites
-- CMake 3.15+
-- Git
-- C/C++ toolchain (e.g., MinGW-w64 on Windows)
-- Python 3 (required by `r3d` for shader processing)
+Platform: PC (will support mobile in the future)
 
-## Quick start (Windows + MinGW)
-```bash
-cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
-```
-Run the executable from `build/`.
+## Game Loop
+The main idea of the game is to collect coins by clicking on a button in a 3D space, and then use those coins to buy tools, armour, upgrades, building materials, weapons, and access to other dimensions.
 
-## Pin versions (optional)
-By default, the template fetches the latest from `master` branches. To pin stable versions, pass tags/commits:
-```bash
-cmake -S . -B build -G "MinGW Makefiles" \
-  -DRAYLIB_GIT_TAG=5.5 \
-  -DASSIMP_GIT_TAG=v5.3.1 \
-  -DR3D_GIT_TAG=master
-```
+After grinding for coins, the player would choose to either build a house, fight off monsters, or engage in boss fights. After finishing their desired activity, the player can return back to their base and grind for more coins.
 
-## Notes
-- We build static libraries to avoid DLL issues on Windows.
-- `raylib` is configured in a "minimal" mode compatible with `r3d` to avoid symbol clashes (model loaders disabled).
-- If you prefer a different generator (e.g., Visual Studio), omit `-G "MinGW Makefiles"` and use the appropriate generator for your environment.
+Occasionally, build trials might spawn, which give OP loot but require coins.
 
-## Project structure
-- `src/main.cpp`: Minimal sample that initializes `raylib` + `r3d` and renders a simple scene.
-- `CMakeLists.txt`: Fetches and configures `raylib`, `assimp`, and `r3d`.
+## Controls
+- WASD for forward, backward, left, and right movement
+- Space for jumping
+- Shift for crouching
+- Ctrl + W for sprinting
+- Escape for pausing the game or closing a menu
 
-## Use as a template
-- Copy this folder to start a new project, or use Github's "Use this template" feature.
+## Items to be added in the shop
+<img width="625" height="747" alt="image" src="https://github.com/user-attachments/assets/cfbd8f8f-c1d3-48c7-9cae-fbaf84590485" />
+
 
