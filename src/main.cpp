@@ -22,7 +22,7 @@ int main() {
 	// ----- VARIABLES -----
 
 	float cubeSize = 1;
-	int coins = 10000;
+	int coins = 0;
 	bool openShopMenu = false;
 	bool pauseMenu = false;
 	bool menu = false;
@@ -33,8 +33,9 @@ int main() {
 	int frames = 0;
 	int framesTarget = 60;
 	int blockSize = 1;
-	std::vector<BLOCKS> blockPositions;
+	std::vector<BLOCKS> blockPositions = { 0 };
 	bool isBockPlaced = false;
+	float maxBlockDistance = 4.0f;
 
 	// ----- MESHES -----
 	
@@ -111,27 +112,27 @@ int main() {
 			}
 		}
 
-	Vector2 screenCenter = {400, 300};
-	Ray blockPos = GetMouseRay(screenCenter, camera);
-	RayCollision blockPosPlane = GetRayCollisionQuad(
-		blockPos,
-		(Vector3){-1000, 0, 1000},
-		(Vector3){1000, 0, 1000},
-		(Vector3){1000, 0, -1000},
-		(Vector3){-1000, 0, -1000}
-	);
+		Vector2 screenCenter = {400, 300};
+		Ray blockPos = GetMouseRay(screenCenter, camera);
+		RayCollision blockPosPlane = GetRayCollisionQuad(
+			blockPos,
+			(Vector3){-1000, 0, 1000},
+			(Vector3){1000, 0, 1000},
+			(Vector3){1000, 0, -1000},
+			(Vector3){-1000, 0, -1000}
+		);
 
-	if (blockPosPlane.hit) {
-		Vector3 point = blockPosPlane.point;
-		int x = std::round(point.x/blockSize)*blockSize;
-		int y = std::round(point.y/blockSize)*blockSize;
-		int z = std::round(point.z/blockSize)*blockSize;
+		if (blockPosPlane.hit && blockPosPlane.distance <= maxBlockDistance) {
+			Vector3 point = blockPosPlane.point;
+			int x = std::round(point.x/blockSize)*blockSize;
+			int y = std::round(point.y/blockSize)*blockSize;
+			int z = std::round(point.z/blockSize)*blockSize;
 
-		if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-			BLOCKS pos = (BLOCKS){(float)x, (float)y+0.5f, (float)z};
-			blockPositions.push_back(pos);
+			if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+				BLOCKS pos = (BLOCKS){(float)x, (float)y+0.5f, (float)z};
+				blockPositions.push_back(pos);
+			}
 		}
-	}
 
 		// Drawing
 		BeginDrawing();
@@ -144,6 +145,18 @@ int main() {
 					R3D_DrawMesh(block, blockMaterial, (Vector3){pos_index.x, pos_index.y, pos_index.z}, (float)blockSize);
 				}
 			R3D_End();
+
+			BeginMode3D(camera);
+				if (blockPosPlane.hit && blockPosPlane.distance <= maxBlockDistance) {
+					Vector3 point = blockPosPlane.point;
+					int x = std::round(point.x/blockSize)*blockSize;
+					int y = std::round(point.y/blockSize)*blockSize;
+					int z = std::round(point.z/blockSize)*blockSize;
+					
+					Vector3 pos = (Vector3){(float)x, (float)y-0.49f, (float)z};
+					DrawCubeWires(pos, 1.0f, 1.0f, 1.0f, BLACK);
+				}
+			EndMode3D();
 
 			// Crosshair
 			DrawLine(400, 290, 400, 310, GRAY);
