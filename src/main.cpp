@@ -4,8 +4,11 @@
 #include <list>
 #include <iostream>
 
-// TODO:
-// ADD A SYSTEM WHERE IF THE BLOCK BEING PLACED IS INSIDE ANOTHER BLOCK, THEN IT'LL GO TO THE BLOCK NORMAL
+struct BLOCKS {
+	float x;
+	float y;
+	float z;
+};
 
 int main() {
 	// ----- SETTING UP THE SCREEN -----
@@ -30,7 +33,7 @@ int main() {
 	int frames = 0;
 	int framesTarget = 60;
 	int blockSize = 1;
-	std::vector<Vector3> blockPositions;
+	std::vector<BLOCKS> blockPositions;
 	bool isBockPlaced = false;
 
 	// ----- MESHES -----
@@ -125,7 +128,7 @@ int main() {
 		int z = std::round(point.z/blockSize)*blockSize;
 
 		if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-			Vector3 pos = (Vector3){(float)x, (float)y+0.5f, (float)z};
+			BLOCKS pos = (BLOCKS){(float)x, (float)y+0.5f, (float)z};
 			blockPositions.push_back(pos);
 		}
 	}
@@ -138,16 +141,7 @@ int main() {
 				R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize/2, 0}, 1.0f);
 				R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
 				for (auto &pos_index : blockPositions) {
-					R3D_DrawMesh(block, blockMaterial, pos_index, (float)blockSize);
-				}
-				if (blockPosPlane.hit) {
-					Vector3 point = blockPosPlane.point;
-					int x = std::round(point.x/blockSize)*blockSize;
-					int y = std::round(point.y/blockSize)*blockSize;
-					int z = std::round(point.z/blockSize)*blockSize;
-
-					R3D_DrawMesh(cube, cubeMaterial, point, 0.1f);
-					R3D_DrawMesh(cube, material, (Vector3){(float)x, (float)y, (float)z}, 0.1f);
+					R3D_DrawMesh(block, blockMaterial, (Vector3){pos_index.x, pos_index.y, pos_index.z}, (float)blockSize);
 				}
 			R3D_End();
 
