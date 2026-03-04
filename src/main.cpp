@@ -6,9 +6,7 @@
 #include <vector>
 
 struct BLOCKS {
-  float x;
-  float y;
-  float z;
+  Vector3 pos;
 };
 
 int main() {
@@ -34,7 +32,7 @@ int main() {
   int frames = 0;
   int framesTarget = 60;
   int blockSize = 1;
-  std::vector<BLOCKS> blockPositions = {{100000.0f, 0.0f, 100000.0f}};
+  std::vector<BLOCKS> blockData = {{100000.0f, 0.0f, 100000.0f}};
   bool isBockPlaced = false;
   float maxBlockDistance = 4.0f;
   float playerHeight = 0.0f;
@@ -124,13 +122,13 @@ int main() {
         (Vector3){1000, 0, -1000}, (Vector3){-1000, 0, -1000});
 
     float maxDistance = fminf(blockPosPlane.distance, maxBlockDistance);
-    for (auto &blockPosition : blockPositions) {
+    for (auto &blockPosition : blockData) {
       BoundingBox bb = (BoundingBox){
-          .min = (Vector3){blockPosition.x - blockSize / 2.0f,
-                           blockPosition.y - blockSize / 2.0f,
-                           blockPosition.z - blockSize / 2.0f},
+          .min = (Vector3){blockPosition.pos.x - blockSize / 2.0f,
+                           blockPosition.pos.y - blockSize / 2.0f,
+                           blockPosition.pos.z - blockSize / 2.0f},
           .max = Vector3Add(
-              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              blockPosition.pos,
               (Vector3){blockSize / 2.0f, blockSize / 2.0f, blockSize / 2.0f})};
       RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
 
@@ -139,9 +137,9 @@ int main() {
         if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
           Vector3 blockNormal = blockPosBlock.normal;
           Vector3 newPos = Vector3Add(
-              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              blockPosition.pos,
               blockNormal);
-          blockPositions.push_back((BLOCKS){newPos.x, newPos.y, newPos.z});
+          blockData.push_back((BLOCKS){newPos.x, newPos.y, newPos.z});
         }
       }
     }
@@ -154,7 +152,7 @@ int main() {
 
       if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
         BLOCKS pos = (BLOCKS){(float)x, (float)y + 0.5f, (float)z};
-        blockPositions.push_back(pos);
+        blockData.push_back(pos);
       }
     }
 
@@ -185,9 +183,9 @@ int main() {
     R3D_DrawMesh(plane, planeMaterial, (Vector3){0, 0, 0}, 1.0f);
     R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize / 2, 0}, 1.0f);
     R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
-    for (auto &pos_index : blockPositions) {
+    for (auto &pos_index : blockData) {
       R3D_DrawMesh(block, blockMaterial,
-                   (Vector3){pos_index.x, pos_index.y, pos_index.z},
+                   pos_index.pos,
                    (float)blockSize);
     }
     R3D_End();
@@ -202,22 +200,21 @@ int main() {
       Vector3 pos = (Vector3){(float)x, (float)y - 0.49f, (float)z};
       DrawCubeWires(pos, 1.0f, 1.0f, 1.0f, BLACK);
     }
-    for (auto &blockPosition : blockPositions) {
+    for (auto &blockPosition : blockData) {
       BoundingBox bb = (BoundingBox){
-          .min = (Vector3){blockPosition.x - blockSize / 2.0f,
-                           blockPosition.y - blockSize / 2.0f,
-                           blockPosition.z - blockSize / 2.0f},
+          .min = (Vector3){blockPosition.pos.x - blockSize / 2.0f,
+                           blockPosition.pos.y - blockSize / 2.0f,
+                           blockPosition.pos.z - blockSize / 2.0f},
           .max = Vector3Add(
-              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              blockPosition.pos,
               (Vector3){blockSize / 2.0f, blockSize / 2.0f, blockSize / 2.0f})};
       RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
 
       if (blockPosBlock.hit && blockPosBlock.distance == maxDistance) {
         Vector3 blockNormal = blockPosBlock.normal;
-        Vector3 newPos = Vector3Add(
-            (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
-            blockNormal);
-        DrawCubeWires((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, 1.0f, 1.0f, 1.0f, BLACK);
+        Vector3 oldPos = blockPosition.pos;
+        Vector3 newPos = Vector3Add(oldPos, blockNormal);
+        DrawCubeWires(oldPos, 1.0f, 1.0f, 1.0f, BLACK);
       }
     }
     EndMode3D();
