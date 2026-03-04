@@ -37,6 +37,10 @@ int main() {
   std::vector<BLOCKS> blockPositions = {{100000.0f, 0.0f, 100000.0f}};
   bool isBockPlaced = false;
   float maxBlockDistance = 4.0f;
+  float playerHeight = 0.0f;
+  float jumpVelocity = 0.0f;
+  float gravity = 0.01f;
+  bool onGround = true;
 
   // ----- MESHES -----
 
@@ -152,6 +156,26 @@ int main() {
         BLOCKS pos = (BLOCKS){(float)x, (float)y + 0.5f, (float)z};
         blockPositions.push_back(pos);
       }
+    }
+
+    // Jumping logic
+    if (onGround && IsKeyDown(KEY_SPACE)) {
+      jumpVelocity = 0.15f;
+      onGround = false;
+    }
+
+    if (!onGround) {
+      playerHeight += jumpVelocity;
+      jumpVelocity -= gravity;
+
+      if (playerHeight <= 0.0f) {
+        playerHeight = 0.0f;
+        onGround = true;
+        jumpVelocity = 0.0f;
+      }
+
+      camera.position.y = 2.0f + playerHeight;
+      camera.target.y += jumpVelocity;
     }
 
     // Drawing
