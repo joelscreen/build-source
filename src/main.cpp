@@ -1,315 +1,326 @@
-#include <r3d/r3d.h>
+#include "r3d/r3d.h"
+#include <iostream>
+#include <list>
+#include <print>
 #include <raymath.h>
 #include <vector>
-#include <list>
-#include <iostream>
 
 struct BLOCKS {
-	float x;
-	float y;
-	float z;
+  float x;
+  float y;
+  float z;
 };
 
 int main() {
-	// ----- SETTING UP THE SCREEN -----
-	InitWindow(800, 600, "Build beta 1.0");
-	SetTargetFPS(60);
+  // ----- SETTING UP THE SCREEN -----
+  InitWindow(800, 600, "Build beta 1.0");
+  SetTargetFPS(60);
 
-	R3D_Init(800, 600);
+  R3D_Init(800, 600);
 
-	DisableCursor();
+  DisableCursor();
 
-	// ----- VARIABLES -----
+  // ----- VARIABLES -----
 
-	float cubeSize = 1;
-	int coins = 0;
-	bool openShopMenu = false;
-	bool pauseMenu = false;
-	bool menu = false;
-	bool doubleClicker = false;
-	int clickerVal = 1;
-	bool autoClicker = false;
-	int autoClickerVal = 0;
-	int frames = 0;
-	int framesTarget = 60;
-	int blockSize = 1;
-	std::vector<BLOCKS> blockPositions = { {100000.0f, 0.0f, 100000.0f} };
-	bool isBockPlaced = false;
-	float maxBlockDistance = 4.0f;
+  float cubeSize = 1;
+  int coins = 0;
+  bool openShopMenu = false;
+  bool pauseMenu = false;
+  bool menu = false;
+  bool doubleClicker = false;
+  int clickerVal = 1;
+  bool autoClicker = false;
+  int autoClickerVal = 0;
+  int frames = 0;
+  int framesTarget = 60;
+  int blockSize = 1;
+  std::vector<BLOCKS> blockPositions = {{100000.0f, 0.0f, 100000.0f}};
+  bool isBockPlaced = false;
+  float maxBlockDistance = 4.0f;
 
-	// ----- MESHES -----
-	
-	// Generating meshes
-	R3D_Mesh plane = R3D_GenMeshPlane(1000, 1000, 1, 1);
-	R3D_Mesh cube = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
-	R3D_Mesh shopkeeper = R3D_GenMeshCube(1, 2, 1);
-	R3D_Mesh block = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
+  // ----- MESHES -----
 
-	// Default Material (only for debugging)
-	R3D_Material material = R3D_GetDefaultMaterial();
+  // Generating meshes
+  R3D_Mesh plane = R3D_GenMeshPlane(1000, 1000, 1, 1);
+  R3D_Mesh cube = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
+  R3D_Mesh shopkeeper = R3D_GenMeshCube(1, 2, 1);
+  R3D_Mesh block = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
 
-	// Textures
-	R3D_Material cubeMaterial = R3D_GetDefaultMaterial();
-	cubeMaterial.albedo.texture = LoadTexture("../assets/cubeTexture.png");
+  // Default Material (only for debugging)
+  R3D_Material material = R3D_GetDefaultMaterial();
 
-	R3D_Material blockMaterial = R3D_GetDefaultMaterial();
-	blockMaterial.albedo.texture = LoadTexture("../assets/blockTexture.png");
+  // Textures
+  R3D_Material cubeMaterial = R3D_GetDefaultMaterial();
+  cubeMaterial.albedo.texture = LoadTexture("../assets/cubeTexture.png");
 
-	R3D_Material planeMaterial = R3D_GetDefaultMaterial();
-	planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
+  R3D_Material blockMaterial = R3D_GetDefaultMaterial();
+  blockMaterial.albedo.texture = LoadTexture("../assets/brickTexture.png");
 
-	// ----- LIGHTS -----
+  R3D_Material planeMaterial = R3D_GetDefaultMaterial();
+  planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
-	// Setting up the light
-	R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
-	R3D_SetLightDirection(light, (Vector3){1, -1, -1});
-	R3D_EnableShadow(light);
-	R3D_SetLightActive(light, true);
+  // ----- LIGHTS -----
 
-	// ----- CAMERA -----
+  // Setting up the light
+  R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
+  R3D_SetLightDirection(light, (Vector3){1, -1, -1});
+  R3D_EnableShadow(light);
+  R3D_SetLightActive(light, true);
 
-	// Camera
-	Camera3D camera = {0};
-	camera.position = {0, 2, 2};
-	camera.target = {0, 0, 0};
-	camera.up = {0, 1, 0};
-	camera.fovy = 70;
-	camera.projection = CAMERA_PERSPECTIVE;
+  // ----- CAMERA -----
 
-	// ----- GAMELOOP -----
+  // Camera
+  Camera3D camera = {0};
+  camera.position = {0, 2, 2};
+  camera.target = {0, 0, 0};
+  camera.up = {0, 1, 0};
+  camera.fovy = 70;
+  camera.projection = CAMERA_PERSPECTIVE;
 
-	while (!WindowShouldClose()) {
-		SetExitKey(KEY_NULL);
+  // ----- GAMELOOP -----
 
-		if (!menu) {
-			UpdateCamera(&camera, CAMERA_FIRST_PERSON);
-		}
+  while (!WindowShouldClose()) {
+    SetExitKey(KEY_NULL);
 
-		// Updating bounding boxes
-		BoundingBox cubeBox = cube.aabb;
-		cubeBox.min = Vector3Add(cubeBox.min, (Vector3){0, cubeSize/2, 0});
-		cubeBox.max = Vector3Add(cubeBox.max, (Vector3){0, cubeSize/2, 0});
+    if (!menu) {
+      UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+    }
 
-		BoundingBox shopBox = shopkeeper.aabb;
-		shopBox.min = Vector3Add(shopBox.min, (Vector3){5, 1, 5});
-		shopBox.max = Vector3Add(shopBox.max, (Vector3){5, 1, 5});
+    // Updating bounding boxes
+    BoundingBox cubeBox = cube.aabb;
+    cubeBox.min = Vector3Add(cubeBox.min, (Vector3){0, cubeSize / 2, 0});
+    cubeBox.max = Vector3Add(cubeBox.max, (Vector3){0, cubeSize / 2, 0});
 
-		// Click detection
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 screenCenter = {400, 300};
-            Ray ray = GetMouseRay(screenCenter, camera);
+    BoundingBox shopBox = shopkeeper.aabb;
+    shopBox.min = Vector3Add(shopBox.min, (Vector3){5, 1, 5});
+    shopBox.max = Vector3Add(shopBox.max, (Vector3){5, 1, 5});
 
-            RayCollision cubeClick = GetRayCollisionBox(ray, cubeBox);
-			RayCollision shopClick = GetRayCollisionBox(ray, shopBox);
-            if (cubeClick.hit && !menu && !pauseMenu) {
-                coins += clickerVal;
-            }
+    // Click detection
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      Vector2 screenCenter = {400, 300};
+      Ray ray = GetMouseRay(screenCenter, camera);
 
-			if (shopClick.hit && !menu) {
-				openShopMenu = true;
-				menu = true;
-				EnableCursor();
-			}
-		}
+      RayCollision cubeClick = GetRayCollisionBox(ray, cubeBox);
+      RayCollision shopClick = GetRayCollisionBox(ray, shopBox);
+      if (cubeClick.hit && !menu && !pauseMenu) {
+        coins += clickerVal;
+      }
 
-		Vector2 screenCenter = {400, 300};
-		Ray blockPos = GetMouseRay(screenCenter, camera);
-		RayCollision blockPosPlane = GetRayCollisionQuad(
-			blockPos,
-			(Vector3){-1000, 0, 1000},
-			(Vector3){1000, 0, 1000},
-			(Vector3){1000, 0, -1000},
-			(Vector3){-1000, 0, -1000}
-		);
+      if (shopClick.hit && !menu) {
+        openShopMenu = true;
+        menu = true;
+        EnableCursor();
+      }
+    }
 
-		for (auto &blockPosition : blockPositions) {
-			BoundingBox bb =
-				(BoundingBox){ .min = (Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, 
-				.max = Vector3Add((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, (Vector3) {1.0f, 1.0f, 1.0f}) };
-			RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
+    Vector2 screenCenter = {400, 300};
+    Ray blockPos = GetMouseRay(screenCenter, camera);
+    RayCollision blockPosPlane = GetRayCollisionQuad(
+        blockPos, (Vector3){-1000, 0, 1000}, (Vector3){1000, 0, 1000},
+        (Vector3){1000, 0, -1000}, (Vector3){-1000, 0, -1000});
 
-			if (blockPosBlock.hit && blockPosBlock.distance <= maxBlockDistance) {
-				if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)){
-					Vector3 blockNormal = blockPosBlock.normal;
-					Vector3 newPos = Vector3Add((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, blockNormal);
-					blockPositions.push_back((BLOCKS){newPos.x, newPos.y, newPos.z});
-				}
-			}
-		}
+    float maxDistance = fminf(blockPosPlane.distance, maxBlockDistance);
+    for (auto &blockPosition : blockPositions) {
+      BoundingBox bb = (BoundingBox){
+          .min = (Vector3){blockPosition.x - blockSize / 2.0f,
+                           blockPosition.y - blockSize / 2.0f,
+                           blockPosition.z - blockSize / 2.0f},
+          .max = Vector3Add(
+              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              (Vector3){blockSize / 2.0f, blockSize / 2.0f, blockSize / 2.0f})};
+      RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
 
-		if (blockPosPlane.hit && blockPosPlane.distance <= maxBlockDistance) {
-			Vector3 point = blockPosPlane.point;
-			int x = std::round(point.x/blockSize)*blockSize;
-			int y = std::round(point.y/blockSize)*blockSize;
-			int z = std::round(point.z/blockSize)*blockSize;
+      if (blockPosBlock.hit && blockPosBlock.distance <= maxDistance) {
+        maxDistance = blockPosBlock.distance;
+        if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+          Vector3 blockNormal = blockPosBlock.normal;
+          Vector3 newPos = Vector3Add(
+              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              blockNormal);
+          blockPositions.push_back((BLOCKS){newPos.x, newPos.y, newPos.z});
+        }
+      }
+    }
 
-			if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-				BLOCKS pos = (BLOCKS){(float)x, (float)y+0.5f, (float)z};
-				blockPositions.push_back(pos);
-			}
-		}
+    if (blockPosPlane.hit && blockPosPlane.distance <= maxDistance) {
+      Vector3 point = blockPosPlane.point;
+      int x = std::round(point.x / blockSize) * blockSize;
+      int y = std::round(point.y / blockSize) * blockSize;
+      int z = std::round(point.z / blockSize) * blockSize;
 
-		// Drawing
-		BeginDrawing();
-			// R3D Drawing
-			R3D_Begin(camera);
-				R3D_DrawMesh(plane, planeMaterial, (Vector3){0, 0, 0}, 1.0f);
-				R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize/2, 0}, 1.0f);
-				R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
-				for (auto &pos_index : blockPositions) {
-					R3D_DrawMesh(block, blockMaterial, (Vector3){pos_index.x, pos_index.y, pos_index.z}, (float)blockSize);
-				}
-			R3D_End();
+      if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        BLOCKS pos = (BLOCKS){(float)x, (float)y + 0.5f, (float)z};
+        blockPositions.push_back(pos);
+      }
+    }
 
-			BeginMode3D(camera);
-				if (blockPosPlane.hit && blockPosPlane.distance <= maxBlockDistance) {
-					Vector3 point = blockPosPlane.point;
-					int x = std::round(point.x/blockSize)*blockSize;
-					int y = std::round(point.y/blockSize)*blockSize;
-					int z = std::round(point.z/blockSize)*blockSize;
-					
-					Vector3 pos = (Vector3){(float)x, (float)y-0.49f, (float)z};
-					DrawCubeWires(pos, 1.0f, 1.0f, 1.0f, BLACK);
-				}
-				for (auto &blockPosition : blockPositions) {
-					BoundingBox bb =
-						(BoundingBox){ .min = (Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, 
-						.max = Vector3Add((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, (Vector3) {1.0f, 1.0f, 1.0f}) };
-					RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
+    // Drawing
+    BeginDrawing();
+    // R3D Drawing
+    R3D_Begin(camera);
+    R3D_DrawMesh(plane, planeMaterial, (Vector3){0, 0, 0}, 1.0f);
+    R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize / 2, 0}, 1.0f);
+    R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
+    for (auto &pos_index : blockPositions) {
+      R3D_DrawMesh(block, blockMaterial,
+                   (Vector3){pos_index.x, pos_index.y, pos_index.z},
+                   (float)blockSize);
+    }
+    R3D_End();
 
-					if (blockPosBlock.hit && blockPosBlock.distance <= maxBlockDistance) {
-						Vector3 blockNormal = blockPosBlock.normal;
-						Vector3 newPos = Vector3Add((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, blockNormal);
-						DrawCubeWires(newPos, 1.0f, 1.0f, 1.0f, BLACK);
-					}
-				}
-			EndMode3D();
+    BeginMode3D(camera);
+    if (blockPosPlane.hit && blockPosPlane.distance <= maxBlockDistance) {
+      Vector3 point = blockPosPlane.point;
+      int x = std::round(point.x / blockSize) * blockSize;
+      int y = std::round(point.y / blockSize) * blockSize;
+      int z = std::round(point.z / blockSize) * blockSize;
 
-			// Crosshair
-			DrawLine(400, 290, 400, 310, GRAY);
-			DrawLine(390, 300, 410, 300, GRAY);
+      Vector3 pos = (Vector3){(float)x, (float)y - 0.49f, (float)z};
+      DrawCubeWires(pos, 1.0f, 1.0f, 1.0f, BLACK);
+    }
+    for (auto &blockPosition : blockPositions) {
+      BoundingBox bb = (BoundingBox){
+          .min = (Vector3){blockPosition.x - blockSize / 2.0f,
+                           blockPosition.y - blockSize / 2.0f,
+                           blockPosition.z - blockSize / 2.0f},
+          .max = Vector3Add(
+              (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+              (Vector3){blockSize / 2.0f, blockSize / 2.0f, blockSize / 2.0f})};
+      RayCollision blockPosBlock = GetRayCollisionBox(blockPos, bb);
 
-			// Coins text
-			DrawText(TextFormat("Coins: $%d", coins), 10, 10, 30, BLACK);
+      if (blockPosBlock.hit && blockPosBlock.distance == maxDistance) {
+        Vector3 blockNormal = blockPosBlock.normal;
+        Vector3 newPos = Vector3Add(
+            (Vector3){blockPosition.x, blockPosition.y, blockPosition.z},
+            blockNormal);
+        DrawCubeWires((Vector3){blockPosition.x, blockPosition.y, blockPosition.z}, 1.0f, 1.0f, 1.0f, BLACK);
+      }
+    }
+    EndMode3D();
 
-			// Shop menu logic
-			if (openShopMenu) {
-				DrawRectangle(30, 30, 740, 540, GRAY); // Main menu rectangle
-				int items_y = 60;
-				for (int o = 0; o < 3; o++){
-					for (int i = 0; i <= 4; i++) {
-						DrawRectangle((i * 145) + 35, items_y, 140, 135, DARKGRAY);
-						DrawCircle((i * 145) + 110, items_y + 35, 30, YELLOW);
-					}
-					items_y += 140;
-					if (coins < 100) {
-						DrawText("Double clicker", 37, 140, 20, GRAY);
-						DrawText("$100", 85, 160, 20, GRAY);
-					}
-					else {
-						DrawText("Double clicker", 37, 140, 20, BLACK);
-						DrawText("$100", 85, 160, 20, BLACK);
-					}
-					if (coins < 200 || framesTarget == 1) {
-						DrawText("Auto clicker", 190, 140, 20, GRAY);
-						DrawText("$200", 225, 160, 20, GRAY);
-					}
-					else {
-						DrawText("Auto clicker", 190, 140, 20, BLACK);
-						DrawText("$200", 225, 160, 20, BLACK);
-					}
-				}
-				if (IsKeyDown(KEY_ESCAPE)) {
-					openShopMenu = false;
-					menu = false;
-					DisableCursor();
-				}
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 35 && GetMouseX() < 175 && GetMouseY() > 60 && GetMouseY() < 195 && coins >= 100) {
-					coins -= 100;
-					doubleClicker = true;
-					clickerVal *= 2;
-				}
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 180 && GetMouseX() < 320 && GetMouseY() > 60 && GetMouseY() < 195 && coins >= 200 && framesTarget != 1) {
-					autoClicker = true;
-					coins -= 200;
-					autoClickerVal += 1;
-					framesTarget = std::max((int)(framesTarget / 2), 1);
-				}
-			}
-			else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && !pauseMenu) {
-				pauseMenu = true;
-				menu = true;
-				EnableCursor();
-			}
-			else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && pauseMenu) {
-				pauseMenu = false;
-				menu = false;
-				DisableCursor();
-			}
+    // Crosshair
+    DrawLine(400, 290, 400, 310, GRAY);
+    DrawLine(390, 300, 410, 300, GRAY);
 
-			// Pause menu logic
-			if (pauseMenu) {
-				// Back to game
-				DrawRectangle(200, 180, 400, 70, GRAY);
-				DrawText("Back to game", 300, 200, 30, BLACK);
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-					if (GetMouseX() > 200 && GetMouseX() < 600) {
-						if (GetMouseY() > 180 && GetMouseY() < 250) {
-							pauseMenu = false;
-							menu = false;
-							DisableCursor();
-						}
-					}
-				}
+    // Coins text
+    DrawText(TextFormat("Coins: $%d", coins), 10, 10, 30, BLACK);
 
-				// Quit game
-				DrawRectangle(200, 380, 400, 70, GRAY);
-				DrawText("Quit game", 300, 400, 30, BLACK);
-				if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-					if (GetMouseX() > 200 && GetMouseX() < 600) {
-						if (GetMouseY() > 380 && GetMouseY() < 550) {
-							break;
-						}
-					}
-				}
-			}
+    // Shop menu logic
+    if (openShopMenu) {
+      DrawRectangle(30, 30, 740, 540, GRAY); // Main menu rectangle
+      int items_y = 60;
+      for (int o = 0; o < 3; o++) {
+        for (int i = 0; i <= 4; i++) {
+          DrawRectangle((i * 145) + 35, items_y, 140, 135, DARKGRAY);
+          DrawCircle((i * 145) + 110, items_y + 35, 30, YELLOW);
+        }
+        items_y += 140;
+        if (coins < 100) {
+          DrawText("Double clicker", 37, 140, 20, GRAY);
+          DrawText("$100", 85, 160, 20, GRAY);
+        } else {
+          DrawText("Double clicker", 37, 140, 20, BLACK);
+          DrawText("$100", 85, 160, 20, BLACK);
+        }
+        if (coins < 200 || framesTarget == 1) {
+          DrawText("Auto clicker", 190, 140, 20, GRAY);
+          DrawText("$200", 225, 160, 20, GRAY);
+        } else {
+          DrawText("Auto clicker", 190, 140, 20, BLACK);
+          DrawText("$200", 225, 160, 20, BLACK);
+        }
+      }
+      if (IsKeyDown(KEY_ESCAPE)) {
+        openShopMenu = false;
+        menu = false;
+        DisableCursor();
+      }
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 35 &&
+          GetMouseX() < 175 && GetMouseY() > 60 && GetMouseY() < 195 &&
+          coins >= 100) {
+        coins -= 100;
+        doubleClicker = true;
+        clickerVal *= 2;
+      }
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 180 &&
+          GetMouseX() < 320 && GetMouseY() > 60 && GetMouseY() < 195 &&
+          coins >= 200 && framesTarget != 1) {
+        autoClicker = true;
+        coins -= 200;
+        autoClickerVal += 1;
+        framesTarget = std::max((int)(framesTarget / 2), 1);
+      }
+    } else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && !pauseMenu) {
+      pauseMenu = true;
+      menu = true;
+      EnableCursor();
+    } else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && pauseMenu) {
+      pauseMenu = false;
+      menu = false;
+      DisableCursor();
+    }
 
-		EndDrawing();
+    // Pause menu logic
+    if (pauseMenu) {
+      // Back to game
+      DrawRectangle(200, 180, 400, 70, GRAY);
+      DrawText("Back to game", 300, 200, 30, BLACK);
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (GetMouseX() > 200 && GetMouseX() < 600) {
+          if (GetMouseY() > 180 && GetMouseY() < 250) {
+            pauseMenu = false;
+            menu = false;
+            DisableCursor();
+          }
+        }
+      }
 
-		frames++;
+      // Quit game
+      DrawRectangle(200, 380, 400, 70, GRAY);
+      DrawText("Quit game", 300, 400, 30, BLACK);
+      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (GetMouseX() > 200 && GetMouseX() < 600) {
+          if (GetMouseY() > 380 && GetMouseY() < 550) {
+            break;
+          }
+        }
+      }
+    }
 
-		if (autoClickerVal != 0) {
-			if (frames >= GetFPS()/autoClickerVal) {
-				frames = 0;
-			}
-		}
-		else {
-			if (frames >= GetFPS()) {
-				frames = 0;
-			}
-		}
+    EndDrawing();
 
-		// Auto Clicker logic
-		if (autoClickerVal != 0) {
-			if (autoClicker && frames == framesTarget-1) {
-				coins++;
-			}
-		}
-		else {
-			if (autoClicker && frames == GetFPS()-1) {
-				coins++;
-			}
-		}
-	}
+    frames++;
 
-	// ----- UNLOADING AND CLOSING -----
+    if (autoClickerVal != 0) {
+      if (frames >= GetFPS() / autoClickerVal) {
+        frames = 0;
+      }
+    } else {
+      if (frames >= GetFPS()) {
+        frames = 0;
+      }
+    }
 
-	// Unloading Meshes
-	R3D_UnloadMesh(plane);
-	R3D_UnloadMesh(cube);
+    // Auto Clicker logic
+    if (autoClickerVal != 0) {
+      if (autoClicker && frames == framesTarget - 1) {
+        coins++;
+      }
+    } else {
+      if (autoClicker && frames == GetFPS() - 1) {
+        coins++;
+      }
+    }
+  }
 
-	// Closing the program
-	R3D_Close();
-	CloseWindow();
-	return 0;
+  // ----- UNLOADING AND CLOSING -----
+
+  // Unloading Meshes
+  R3D_UnloadMesh(plane);
+  R3D_UnloadMesh(cube);
+
+  // Closing the program
+  R3D_Close();
+  CloseWindow();
+  return 0;
 }
