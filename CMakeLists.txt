@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(RaylibTemplate)
+project(build_alpha)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -53,13 +53,13 @@ if(NOT r3d_SOURCE_DIR)
 endif()
 
 target_include_directories(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         ${r3d_SOURCE_DIR}/external/raylib/src
         ${r3d_SOURCE_DIR}/include
 )
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE
+    PUBLIC
         r3d
         raylib
 )
@@ -68,3 +68,27 @@ target_link_libraries(${PROJECT_NAME}
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE winmm gdi32 opengl32)
 endif()
+
+# ------------------------------------------------------------
+# Headers and Libraries
+# ------------------------------------------------------------
+
+add_library(blocks
+    libs/blocks.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC blocks)
+
+target_include_directories(blocks
+    PUBLIC
+        ${r3d_SOURCE_DIR}/external/raylib/src
+        ${r3d_SOURCE_DIR}/include
+)
+
+target_link_libraries(blocks
+    PUBLIC
+        r3d
+        raylib
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC include)
