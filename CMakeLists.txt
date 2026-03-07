@@ -73,6 +73,7 @@ endif()
 # Headers and Libraries
 # ------------------------------------------------------------
 
+# Blocks Library
 add_library(blocks
     libs/blocks.cpp
 )
@@ -86,6 +87,25 @@ target_include_directories(blocks
 )
 
 target_link_libraries(blocks
+    PUBLIC
+        r3d
+        raylib
+)
+
+# Shop menu library
+add_library(shop_menu
+    libs/shop_menu.cpp
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC shop_menu)
+
+target_include_directories(shop_menu
+    PUBLIC
+        ${r3d_SOURCE_DIR}/external/raylib/src
+        ${r3d_SOURCE_DIR}/include
+)
+
+target_link_libraries(shop_menu
     PUBLIC
         r3d
         raylib

@@ -8,7 +8,7 @@ struct BLOCKS {
   Vector3 pos;
 };
 
-void blocksPlacement(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize) {
+void BlocksPlacement(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize) {
     Vector2 screenCenter = {400, 300};
     Ray blockPos = GetMouseRay(screenCenter, camera);
     RayCollision blockPosPlane = GetRayCollisionQuad(
@@ -50,7 +50,7 @@ void blocksPlacement(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS
     }
 }
 
-void drawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blockData, int blockSize, RayCollision blockPosPlane) {
+void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blockData, int blockSize, RayCollision blockPosPlane) {
     Vector2 screenCenter = {400, 300};
     Ray blockPos = GetMouseRay(screenCenter, camera);
     for (auto &blockPosition : blockData) {
