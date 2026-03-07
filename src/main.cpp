@@ -48,7 +48,7 @@ int main() {
   R3D_Mesh block = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
 
   // Default Material (only for debugging)
-  R3D_Material material = R3D_GetDefaultMaterial();
+  R3D_Material shopMaterial = R3D_GetDefaultMaterial();
 
   // Textures
   R3D_Material cubeMaterial = R3D_GetDefaultMaterial();
@@ -151,7 +151,7 @@ int main() {
     R3D_Begin(camera);
     R3D_DrawMesh(plane, planeMaterial, (Vector3){0, 0, 0}, 1.0f);
     R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize / 2, 0}, 1.0f);
-    R3D_DrawMesh(shopkeeper, material, (Vector3){5, 1, 5}, 1.0f);
+    R3D_DrawMesh(shopkeeper, shopMaterial, (Vector3){5, 1, 5}, 1.0f);
     for (auto &pos_index : blockData) {
       R3D_DrawMesh(block, blockMaterial,
                    pos_index.pos,
