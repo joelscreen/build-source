@@ -57,3 +57,30 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
       DisableCursor();
     }
 }
+
+void DrawPauseMenu(bool &pauseMenu, bool &menu, bool &shouldClose) {
+  if (pauseMenu) {
+    // Back to game
+    DrawRectangle(200, 180, 400, 70, GRAY);
+    DrawText("Back to game", 300, 200, 30, BLACK);
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      if (GetMouseX() > 200 && GetMouseX() < 600) {
+        if (GetMouseY() > 180 && GetMouseY() < 250) {
+          pauseMenu = false;
+          menu = false;
+          DisableCursor();
+        }
+      }
+    }
+    // Quit game
+    DrawRectangle(200, 380, 400, 70, GRAY);
+    DrawText("Quit game", 300, 400, 30, BLACK);
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      if (GetMouseX() > 200 && GetMouseX() < 600) {
+        if (GetMouseY() > 380 && GetMouseY() < 550) {
+          shouldClose = false;
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(build_alpha VERSION 0.1.0)
+project(build_alpha VERSION 0.0.1)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -94,7 +94,7 @@ target_link_libraries(blocks
 
 # Shop menu library
 add_library(shop_menu
-    libs/shop_menu.cpp
+    libs/menu.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC shop_menu)

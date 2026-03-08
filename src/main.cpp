@@ -1,7 +1,7 @@
 #include "r3d/r3d.h"
 #include <raymath.h>
 #include <vector>
-#include "shop_menu.h"
+#include "menu.h"
 
 struct BLOCKS {
   Vector3 pos;
@@ -39,6 +39,7 @@ int main() {
   float jumpVelocity = 0.0f;
   float gravity = 0.01f;
   bool onGround = true;
+  bool shouldClose = true;
 
   // ----- MESHES -----
 
@@ -61,6 +62,7 @@ int main() {
   R3D_Material planeMaterial = R3D_GetDefaultMaterial();
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
+  R3D_ENVIRONMENT_SET(ambient.color, (Color){10, 10, 10, 0});
   // ----- LIGHTS -----
 
   // Setting up the light
@@ -81,7 +83,7 @@ int main() {
 
   // ----- GAMELOOP -----
 
-  while (!WindowShouldClose()) {
+  while (!WindowShouldClose() && shouldClose) {
     SetExitKey(KEY_NULL);
 
     if (!menu) {
@@ -175,31 +177,7 @@ int main() {
     DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu);
 
     // Pause menu logic
-    if (pauseMenu) {
-      // Back to game
-      DrawRectangle(200, 180, 400, 70, GRAY);
-      DrawText("Back to game", 300, 200, 30, BLACK);
-      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        if (GetMouseX() > 200 && GetMouseX() < 600) {
-          if (GetMouseY() > 180 && GetMouseY() < 250) {
-            pauseMenu = false;
-            menu = false;
-            DisableCursor();
-          }
-        }
-      }
-
-      // Quit game
-      DrawRectangle(200, 380, 400, 70, GRAY);
-      DrawText("Quit game", 300, 400, 30, BLACK);
-      if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        if (GetMouseX() > 200 && GetMouseX() < 600) {
-          if (GetMouseY() > 380 && GetMouseY() < 550) {
-            break;
-          }
-        }
-      }
-    }
+    DrawPauseMenu(pauseMenu, menu, shouldClose);
 
     EndDrawing();
 
