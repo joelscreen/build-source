@@ -13,7 +13,7 @@ Platform: PC (will support mobile in the future)
 ## Game Loop
 The main idea of the game is to collect coins by clicking on a button in a 3D space, and then use those coins to buy tools, armour, upgrades, building materials, weapons, and access to other dimensions.
 
-After grinding for coins, the player would choose to either build a house, fight off monsters, or engage in boss fights. After finishing their desired activity, the player can return back to their base and grind for more coins.
+After grinding for coins, the player would choose to either build things, fight off monsters, explore different dimensions, or engage in boss fights. After finishing their desired activity, the player can return back to their base and grind for more coins.
 
 Occasionally, build trials might spawn, which give OP loot but require coins.
 
