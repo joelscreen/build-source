@@ -75,7 +75,7 @@ endif()
 
 # Blocks Library
 add_library(blocks
-    libs/blocks.cpp
+    libraries/blocks/blocks.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC blocks)
@@ -92,9 +92,11 @@ target_link_libraries(blocks
         raylib
 )
 
+target_include_directories(${PROJECT_NAME} PUBLIC libraries/blocks)
+
 # Shop menu library
 add_library(shop_menu
-    libs/menu.cpp
+    libraries/menu/menu.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC shop_menu)
@@ -111,4 +113,4 @@ target_link_libraries(shop_menu
         raylib
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC libraries/menu)
