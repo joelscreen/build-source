@@ -1,14 +1,14 @@
 #include "r3d/r3d.h"
 #include <raymath.h>
 #include <vector>
-#include "menu.h"
+#include "menu/menu.h"
 #include <iostream>
 
 struct BLOCKS {
   Vector3 pos;
 };
 
-#include "blocks.h"
+#include "blocks/blocks.h"
 
 int main() {
   // ----- SETTING UP THE SCREEN -----
@@ -63,12 +63,12 @@ int main() {
   R3D_Material planeMaterial = R3D_GetDefaultMaterial();
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
-  R3D_ENVIRONMENT_SET(ambient.color, (Color){18, 18, 18, 0});
+  R3D_ENVIRONMENT_SET(ambient.color, Color{18, 18, 18, 0});
   // ----- LIGHTS -----
 
   // Setting up the light
   R3D_Light light = R3D_CreateLight(R3D_LIGHT_DIR);
-  R3D_SetLightDirection(light, (Vector3){1, -1, -1});
+  R3D_SetLightDirection(light, Vector3{1, -1, -1});
   R3D_EnableShadow(light);
   R3D_SetLightActive(light, true);
 
@@ -97,12 +97,12 @@ int main() {
 
     // Updating bounding boxes
     BoundingBox cubeBox = cube.aabb;
-    cubeBox.min = Vector3Add(cubeBox.min, (Vector3){0, cubeSize / 2, 0});
-    cubeBox.max = Vector3Add(cubeBox.max, (Vector3){0, cubeSize / 2, 0});
+    cubeBox.min = Vector3Add(cubeBox.min, Vector3{0, cubeSize / 2, 0});
+    cubeBox.max = Vector3Add(cubeBox.max, Vector3{0, cubeSize / 2, 0});
 
     BoundingBox shopBox = shopkeeper.aabb;
-    shopBox.min = Vector3Add(shopBox.min, (Vector3){5, 1, 5});
-    shopBox.max = Vector3Add(shopBox.max, (Vector3){5, 1, 5});
+    shopBox.min = Vector3Add(shopBox.min, Vector3{5, 1, 5});
+    shopBox.max = Vector3Add(shopBox.max, Vector3{5, 1, 5});
 
     // Click detection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -126,9 +126,9 @@ int main() {
     Vector2 screenCenter = {400, 300};
     Ray blockPos = GetMouseRay(screenCenter, camera);
     RayCollision blockPosPlane = GetRayCollisionQuad(
-        blockPos, (Vector3){-1000, 0, 1000}, (Vector3){1000, 0, 1000},
-        (Vector3){1000, 0, -1000}, (Vector3){-1000, 0, -1000});
-    BlocksPlacement(camera, maxBlockDistance, blockData, blockSize);
+        blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
+        Vector3{1000, 0, -1000}, Vector3{-1000, 0, -1000});
+    PlaceBlocks(camera, maxBlockDistance, blockData, blockSize);
     // Jumping logic
     if (onGround && IsKeyDown(KEY_SPACE)) {
       jumpVelocity = 0.2f;
@@ -153,9 +153,9 @@ int main() {
     BeginDrawing();
     // R3D Drawing
     R3D_Begin(camera);
-    R3D_DrawMesh(plane, planeMaterial, (Vector3){0, 0, 0}, 1.0f);
-    R3D_DrawMesh(cube, cubeMaterial, (Vector3){0, cubeSize / 2, 0}, 1.0f);
-    R3D_DrawMesh(shopkeeper, shopMaterial, (Vector3){5, 1, 5}, 1.0f);
+    R3D_DrawMesh(plane, planeMaterial, Vector3{0, 0, 0}, 1.0f);
+    R3D_DrawMesh(cube, cubeMaterial, Vector3{0, cubeSize / 2, 0}, 1.0f);
+    R3D_DrawMesh(shopkeeper, shopMaterial, Vector3{5, 1, 5}, 1.0f);
     for (auto &pos_index : blockData) {
       R3D_DrawMesh(block, blockMaterial,
                    pos_index.pos,

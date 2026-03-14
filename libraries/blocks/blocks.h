@@ -1,4 +1,10 @@
 #pragma once
+#include "raylib.h"
+#include <vector>
 
-void BlocksPlacement(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize);
+struct BLOCKS {
+  Vector3 pos;
+};
+
+void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize);
 void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blockData, int blockSize, RayCollision blockPosPlane);

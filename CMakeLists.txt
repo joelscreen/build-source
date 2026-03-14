@@ -78,10 +78,9 @@ add_library(blocks
     libraries/blocks/blocks.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC blocks)
-
 target_include_directories(blocks
     PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/libraries
         ${r3d_SOURCE_DIR}/external/raylib/src
         ${r3d_SOURCE_DIR}/include
 )
@@ -92,7 +91,7 @@ target_link_libraries(blocks
         raylib
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC libraries/blocks)
+target_link_libraries(${PROJECT_NAME} PUBLIC blocks)
 
 # Shop menu library
 add_library(shop_menu
@@ -113,4 +112,4 @@ target_link_libraries(shop_menu
         raylib
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC libraries/menu)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libraries)
