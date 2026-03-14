@@ -4,10 +4,6 @@
 #include "menu/menu.h"
 #include <iostream>
 
-struct BLOCKS {
-  Vector3 pos;
-};
-
 #include "blocks/blocks.h"
 
 int main() {
@@ -122,13 +118,12 @@ int main() {
       }
     }
 
-    // Blocks Placement
-    Vector2 screenCenter = {400, 300};
-    Ray blockPos = GetMouseRay(screenCenter, camera);
-    RayCollision blockPosPlane = GetRayCollisionQuad(
-        blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
-        Vector3{1000, 0, -1000}, Vector3{-1000, 0, -1000});
+    // Placing Blocks
     PlaceBlocks(camera, maxBlockDistance, blockData, blockSize);
+    
+    // Breaking Blocks
+    BreakBlocks(camera, maxBlockDistance, blockData, blockSize);
+
     // Jumping logic
     if (onGround && IsKeyDown(KEY_SPACE)) {
       jumpVelocity = 0.2f;
@@ -164,6 +159,11 @@ int main() {
     R3D_End();
 
     BeginMode3D(camera);
+    Vector2 screenCenter = {400, 300};
+    Ray blockPos = GetMouseRay(screenCenter, camera);
+    RayCollision blockPosPlane = GetRayCollisionQuad(
+        blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
+        Vector3{1000, 0, -1000}, Vector3{-1000, 0, -1000});
     DrawBlocks(camera, maxBlockDistance, blockData, blockSize, blockPosPlane);
     EndMode3D();
 
