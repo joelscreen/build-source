@@ -68,6 +68,7 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
       BLOCKS pos = BLOCKS{(float)x, (float)y + 0.5f, (float)z};
       blockData.push_back(pos);
+      return;
     }
   }
 }

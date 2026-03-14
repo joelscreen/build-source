@@ -60,6 +60,10 @@ int main() {
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
   R3D_ENVIRONMENT_SET(ambient.color, Color{18, 18, 18, 0});
+
+  // Skybox
+  
+
   // ----- LIGHTS -----
 
   // Setting up the light
