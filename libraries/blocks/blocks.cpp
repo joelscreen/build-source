@@ -49,10 +49,12 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
     if (blockPosBlock.hit && blockPosBlock.distance <= maxDistance) {
       maxDistance = blockPosBlock.distance;
       if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && closestBlock) {
-        Vector3 blockNormal = blockPosBlock.normal;
-        Vector3 newPos = Vector3Add(
-            blockPosition.pos,
-            blockNormal);
+        Vector3 newPos = Vector3Add(blockPosition.pos, Vector3Scale(blockPosBlock.normal, (float)blockSize));
+        for (auto &blocks : blockData) {
+          if (blocks.pos.x == newPos.x && blocks.pos.y == newPos.y && blocks.pos.z == newPos.z) {
+            Vector3Add(newPos, blockPosBlock.normal);
+          }
+        }
         blockData.push_back(BLOCKS{newPos.x, newPos.y, newPos.z});
         return;
       }
