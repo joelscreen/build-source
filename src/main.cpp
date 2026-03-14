@@ -2,6 +2,7 @@
 #include <raymath.h>
 #include <vector>
 #include "menu.h"
+#include <iostream>
 
 struct BLOCKS {
   Vector3 pos;
@@ -62,7 +63,7 @@ int main() {
   R3D_Material planeMaterial = R3D_GetDefaultMaterial();
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
-  R3D_ENVIRONMENT_SET(ambient.color, (Color){10, 10, 10, 0});
+  R3D_ENVIRONMENT_SET(ambient.color, (Color){18, 18, 18, 0});
   // ----- LIGHTS -----
 
   // Setting up the light
@@ -130,12 +131,12 @@ int main() {
     BlocksPlacement(camera, maxBlockDistance, blockData, blockSize);
     // Jumping logic
     if (onGround && IsKeyDown(KEY_SPACE)) {
-      jumpVelocity = 0.15f;
+      jumpVelocity = 0.2f;
       onGround = false;
     }
 
     if (!onGround) {
-      playerHeight += jumpVelocity;
+      playerHeight += jumpVelocity * GetFrameTime();
       jumpVelocity -= gravity;
 
       if (playerHeight <= 0.0f) {
@@ -144,8 +145,8 @@ int main() {
         jumpVelocity = 0.0f;
       }
 
-      camera.position.y = 2.0f + playerHeight;
-      camera.target.y += jumpVelocity;
+      camera.position.y = 2.0f + playerHeight * 50;
+      camera.target.y += jumpVelocity * GetFrameTime() * 50;
     }
 
     // Drawing
