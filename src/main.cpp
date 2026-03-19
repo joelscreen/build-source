@@ -61,10 +61,23 @@ int main() {
   R3D_Material planeMaterial = R3D_GetDefaultMaterial();
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
 
-  R3D_ENVIRONMENT_SET(ambient.color, Color{18, 18, 18, 0});
-
   // Skybox
-  
+  /*
+  R3D_Cubemap sky = R3D_LoadCubemap("assets/sky.hdr", R3D_CUBEMAP_LAYOUT_AUTO_DETECT);
+
+  R3D_EnvBackground background = {0};
+  background.sky = sky;
+  background.energy = 1.0f;
+
+  R3D_EnvAmbient ambient = {0};
+  ambient.map = R3D_GenAmbientMap(sky, R3D_AMBIENT_ILLUMINATION | R3D_AMBIENT_REFLECTION);
+  ambient.energy = 1.0f;
+
+  R3D_ENVIRONMENT_SET(background, background);
+  R3D_ENVIRONMENT_SET(ambient, ambient);
+  */
+
+  R3D_ENVIRONMENT_SET(ambient.color, Color{18, 18, 18, 0});
 
   // ----- LIGHTS -----
 
