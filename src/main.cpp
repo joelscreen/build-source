@@ -18,7 +18,7 @@ int main() {
   // ----- VARIABLES -----
 
   float cubeSize = 1;
-  int coins = 0;
+  int coins = 1000;
   bool openShopMenu = false;
   bool pauseMenu = false;
   bool menu = false;
@@ -37,6 +37,8 @@ int main() {
   float gravity = 0.01f;
   bool onGround = true;
   bool shouldClose = true;
+  int blocks = 0;
+  bool canJump = true;
 
   // ----- MESHES -----
 
@@ -123,29 +125,31 @@ int main() {
     }
 
     // Placing Blocks
-    PlaceBlocks(camera, maxBlockDistance, blockData, blockSize);
+    PlaceBlocks(camera, maxBlockDistance, blockData, blockSize, blocks);
     
     // Breaking Blocks
-    BreakBlocks(camera, maxBlockDistance, blockData, blockSize);
+    BreakBlocks(camera, maxBlockDistance, blockData, blockSize, blocks);
 
     // Jumping logic
-    if (onGround && IsKeyDown(KEY_SPACE)) {
-      jumpVelocity = 0.2f;
-      onGround = false;
-    }
-
-    if (!onGround) {
-      playerHeight += jumpVelocity * GetFrameTime();
-      jumpVelocity -= gravity;
-
-      if (playerHeight <= 0.0f) {
-        playerHeight = 0.0f;
-        onGround = true;
-        jumpVelocity = 0.0f;
+    if (canJump) {
+      if (onGround && IsKeyDown(KEY_SPACE)) {
+        jumpVelocity = 0.2f;
+        onGround = false;
       }
 
-      camera.position.y = 2.0f + playerHeight * 50;
-      camera.target.y += jumpVelocity * GetFrameTime() * 50;
+      if (!onGround) {
+        playerHeight += jumpVelocity * GetFrameTime();
+        jumpVelocity -= gravity;
+
+        if (playerHeight <= 0.0f) {
+          playerHeight = 0.0f;
+          onGround = true;
+          jumpVelocity = 0.0f;
+        }
+
+        camera.position.y = 2.0f + playerHeight * 50;
+        camera.target.y += jumpVelocity * GetFrameTime() * 50;
+      }
     }
 
     // Drawing
@@ -178,8 +182,11 @@ int main() {
     // Coins text
     DrawText(TextFormat("Coins: $%d", coins), 10, 10, 30, BLACK);
 
+    // Blocks text
+    DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
+
     // Shop menu logic
-    DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu);
+    DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump);
 
     // Pause menu logic
     DrawPauseMenu(pauseMenu, menu, shouldClose);
