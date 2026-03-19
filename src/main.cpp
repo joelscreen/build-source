@@ -18,7 +18,7 @@ int main() {
   // ----- VARIABLES -----
 
   float cubeSize = 1;
-  int coins = 1000;
+  int coins = 0;
   bool openShopMenu = false;
   bool pauseMenu = false;
   bool menu = false;
