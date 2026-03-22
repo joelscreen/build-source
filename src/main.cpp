@@ -8,7 +8,7 @@
 
 int main() {
   // ----- SETTING UP THE SCREEN -----
-  InitWindow(800, 600, "Build alpha-0.1.0");
+  InitWindow(800, 600, "Build alpha-0.0.1");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
