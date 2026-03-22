@@ -8,7 +8,7 @@ Version: Build alpha-0.0.1
 ## Overview
 Genre: RPG / Survival / Action
 
-Platform: PC (will support mobile in the future)
+Platform: PC
 
 ## Game Loop
 
