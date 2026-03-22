@@ -3,7 +3,7 @@
 A 3D RPG similar to cookie clicker with building and fighting aspects.
 
 ## Latest Version
-Version: Build alpha-0.1.0
+Version: Build alpha-0.0.1
 
 ## Overview
 Genre: RPG / Survival / Action
@@ -11,16 +11,42 @@ Genre: RPG / Survival / Action
 Platform: PC (will support mobile in the future)
 
 ## Game Loop
+
 The main idea of the game is to collect coins by clicking on a button in a 3D space, and then use those coins to buy tools, armour, upgrades, building materials, weapons, and access to other dimensions.
 
 After grinding for coins, the player would choose to either build things, fight off monsters, explore different dimensions, or engage in boss fights. After finishing their desired activity, the player can return back to their base and grind for more coins.
 
-Occasionally, build trials might spawn, which give OP loot but require coins.
+(Some of these 'game loop' features are mostly speculations on the future of Build. Please check the below 'features' for a more accurate idea.)
+
+## Current Features
+- Clicking the coins generator to get coins
+- Buying the double clicker and auto clicker
+- Breaking and placing blocks
 
 ## Controls
 - WASD for forward, backward, left, and right movement
 - Space for jumping
-- Shift for crouching
-- Ctrl + W for sprinting
 - Escape for pausing the game or closing a menu
+- Right click to place Blocks
+- Left click to break Blocks
 
+## How to compile?
+### In order to compile build, you need:-
+- Raylib - https://github.com/raysan5/raylibbash
+- R3D - https://github.com/Bigfoot71/r3d
+- CMake - https://cmake.org/download
+- C++ compilor of your choice
+- Editor of your choice
+
+### After you have everything ready, run these commands in terminal
+```bash
+mkdir build
+cd build
+cmake -S .. -B .
+cmake --build .
+```
+
+After that, run the executable in the build folder
+
+
+Template by https://github.com/jensroth-git/r3dStarter
