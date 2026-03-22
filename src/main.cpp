@@ -189,8 +189,8 @@ int main() {
     EndMode3D();
 
     // Crosshair
-    DrawLine(400, 290, 400, 310, GRAY);
-    DrawLine(390, 300, 410, 300, GRAY);
+    DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, GRAY);
+    DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, GRAY);
 
     // Coins text
     DrawText(TextFormat("Coins: $%d", coins), 10, 10, 30, BLACK);
