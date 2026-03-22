@@ -50,4 +50,5 @@ After that, run the executable in the build folder
 
 ---
 *Template by https://github.com/jensroth-git/r3dStarter*
+
 *Copyright © 2026 Joel Mendonca*
