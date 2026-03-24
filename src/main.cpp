@@ -102,6 +102,8 @@ int main() {
   while (!WindowShouldClose() && shouldClose) {
     SetExitKey(KEY_NULL);
 
+    Vector3 oldCamPos = camera.position; 
+
     if (!menu) {
       UpdateCamera(&camera, CAMERA_FIRST_PERSON);
     }
@@ -165,6 +167,23 @@ int main() {
       }
     }
 
+    // Collision detection with blocks
+    for (auto &block : blockData) {
+      if (CheckCollisionBoxes(
+        BoundingBox{Vector3{ camera.position.x - 0.5f,
+                                 camera.position.y - 2.0f - 1.0f,
+                                 camera.position.z - 0.5f },
+                      Vector3{ camera.position.x + 0.5f,
+                                 camera.position.y - 2.0f + 1.0f,
+                                 camera.position.z + 0.5f }},
+        BoundingBox{Vector3{ block.pos.x - 0.5f,
+                                 block.pos.y - 0.5f,
+                                 block.pos.z - 0.5f },
+                      Vector3{ block.pos.x + 0.5f,
+                                 block.pos.y + 0.5f,
+                                 block.pos.z + 0.5f }})) camera.position = oldCamPos;
+    }
+    
     // Drawing
     BeginDrawing();
     // R3D Drawing
