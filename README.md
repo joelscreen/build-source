@@ -8,7 +8,7 @@ Version: Build alpha-0.0.1
 ## Overview
 Genre: RPG / Survival / Action
 
-Platform: PC (will support mobile in the future)
+Platform: PC
 
 ## Game Loop
 
@@ -32,7 +32,7 @@ After grinding for coins, the player would choose to either build things, fight 
 
 ## How to compile?
 ### In order to compile build, you need:-
-- Raylib - https://github.com/raysan5/raylibbash
+- Raylib - https://github.com/raysan5/raylib
 - R3D - https://github.com/Bigfoot71/r3d
 - CMake - https://cmake.org/download
 - C++ compilor of your choice
@@ -48,5 +48,7 @@ cmake --build .
 
 After that, run the executable in the build folder
 
+---
+*Template by https://github.com/jensroth-git/r3dStarter*
 
-Template by https://github.com/jensroth-git/r3dStarter
+*Copyright © 2026 Joel Mendonca*
