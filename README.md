@@ -3,7 +3,7 @@
 A 3D RPG similar to cookie clicker with building and fighting aspects.
 
 ## Latest Version
-Version: Build alpha-0.0.1
+Version: Build alpha-0.0.1-test-1
 
 ## Overview
 Genre: RPG / Survival / Action
@@ -22,6 +22,7 @@ After grinding for coins, the player would choose to either build things, fight 
 - Clicking the coins generator to get coins
 - Buying the double clicker and auto clicker
 - Breaking and placing blocks
+- Collision with blocks
 
 ## Controls
 - WASD for forward, backward, left, and right movement
