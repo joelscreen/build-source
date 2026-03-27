@@ -37,7 +37,7 @@ int main() {
   float gravity = 0.01f;
   bool onGround = true;
   bool shouldClose = true;
-  int blocks = 3;
+  int blocks = 0;
   bool canJump = true;
 
   // ----- MESHES -----

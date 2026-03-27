@@ -31,11 +31,11 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
         }
         if (coins < 150) {
           DrawText("Bricks", 363, 140, 20, GRAY);
-          DrawText("$150", 375, 160, 20, GRAY);
+          DrawText("$50", 375, 160, 20, GRAY);
         }
         else {
           DrawText("Bricks", 363, 140, 20, BLACK);
-          DrawText("$150", 375, 160, 20, BLACK);
+          DrawText("$50", 375, 160, 20, BLACK);
         }
       }
       if (IsKeyDown(KEY_ESCAPE)) {
@@ -61,8 +61,8 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
       }
       if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 325 &&
           GetMouseX() < 465 && GetMouseY() > 60 && GetMouseY() < 195 &&
-          coins >= 150) {
-        coins -= 150;
+          coins >= 50) {
+        coins -= 50;
         blocks++;
       }
     } else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && !pauseMenu) {
