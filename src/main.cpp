@@ -29,15 +29,15 @@ int main() {
   int frames = 0;
   int framesTarget = 60;
   int blockSize = 1;
-  std::vector<BLOCKS> blockData = {{100000.0f, 0.0f, 100000.0f}};
+  std::vector<BLOCKS> blockData = {{100000.0f, -100000.0f, 100000.0f}};
   bool isBockPlaced = false;
   float maxBlockDistance = 4.0f;
-  float playerHeight = 0.0f;
+  float playerY = 0.0f;
   float jumpVelocity = 0.0f;
   float gravity = 0.01f;
   bool onGround = true;
   bool shouldClose = true;
-  int blocks = 0;
+  int blocks = 3;
   bool canJump = true;
 
   // ----- MESHES -----
@@ -100,17 +100,96 @@ int main() {
   // ----- GAMELOOP -----
 
   while (!WindowShouldClose() && shouldClose) {
+
     SetExitKey(KEY_NULL);
 
-    Vector3 oldCamPos = camera.position; 
+    Vector3 oldCamPos = camera.position;
 
     if (!menu) {
       UpdateCamera(&camera, CAMERA_FIRST_PERSON);
     }
+    // Jumping logic
+    if (canJump) {
+      if (onGround && IsKeyDown(KEY_SPACE)) {
+        jumpVelocity = 0.2f;
+        onGround = false;
+      }
 
-    if (IsKeyPressed(KEY_F11)) {
-      ToggleFullscreen();
+      if (!onGround) {
+        playerY += jumpVelocity * GetFrameTime();
+        jumpVelocity -= gravity;
+
+        if (playerY <= 0.0f) {
+          playerY = 0.0f;
+          onGround = true;
+          jumpVelocity = 0.0f;
+        }
+        camera.position.y = 2.0f + playerY * 50;
+        camera.target.y += jumpVelocity * GetFrameTime() * 50;
+      }
     }
+
+    // Collision detection with blocks
+    for (auto &block : blockData) {
+      if (CheckCollisionBoxes(
+        BoundingBox{Vector3{ camera.position.x - 0.5f,
+                                 camera.position.y - 2.0f - 1.0f,
+                                 camera.position.z - 0.5f },
+                      Vector3{ camera.position.x + 0.5f,
+                                 camera.position.y - 2.0f + 1.0f,
+                                 camera.position.z + 0.5f }},
+        BoundingBox{Vector3{ block.pos.x - 0.5f,
+                                 block.pos.y - 0.5f,
+                                 block.pos.z - 0.5f },
+                      Vector3{ block.pos.x + 0.5f,
+                                 block.pos.y + 0.5f,
+                                 block.pos.z + 0.5f }})) {
+        // X-axis collision
+        if (oldCamPos.x < camera.position.x && block.pos.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+          camera.position.x -= 0.089997f;
+          camera.target.y -= 0.089997f;
+        }
+        else if (oldCamPos.x > camera.position.x && block.pos.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+          camera.position.x += 0.089997f;
+          camera.target.y -= 0.089997f;
+        }
+
+        // Y-axis collision
+        float playerBottom = camera.position.y - 2.0f;
+        float blockTop = block.pos.y + 0.5f;
+
+        bool insideX = camera.position.x >= block.pos.x - 0.5f &&
+                        camera.position.x <= block.pos.x + 0.5f;
+
+        bool insideZ = camera.position.z >= block.pos.z - 0.5f &&
+                        camera.position.z <= block.pos.z + 0.5f;
+
+        if (insideX && insideZ && playerBottom <= blockTop + 0.1f && playerBottom >= blockTop - 0.2f) {
+          camera.position.y = blockTop + 2.0f;
+          onGround = true;
+          jumpVelocity = 0.0f;
+        }
+        if (camera.position.y - 2.0f < 0.0f) {
+          camera.position.y = 2.0f;
+        }
+
+        // Z-axis collision
+        if (oldCamPos.z > camera.position.z && block.pos.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+          camera.position.z += 0.089997f;
+          camera.target.y -= 0.089997f;
+        }
+        else if (oldCamPos.z < camera.position.z && block.pos.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+          camera.position.z -= 0.089997f;
+          camera.target.y -= 0.089997f;
+        }
+      }
+      float playerBottom = camera.position.y - 2.0f;
+      float blockTop = block.pos.y + 0.5f;
+      if (playerBottom != blockTop && playerBottom > 0) {
+        camera.position.y -= 0.05;
+      }
+    }
+    if (camera.position.y - 2.0f < 0) camera.position.y = 2.0f;
 
     // Updating bounding boxes
     BoundingBox cubeBox = cube.aabb;
@@ -145,45 +224,6 @@ int main() {
     // Breaking Blocks
     BreakBlocks(camera, maxBlockDistance, blockData, blockSize, blocks);
 
-    // Jumping logic
-    if (canJump) {
-      if (onGround && IsKeyDown(KEY_SPACE)) {
-        jumpVelocity = 0.2f;
-        onGround = false;
-      }
-
-      if (!onGround) {
-        playerHeight += jumpVelocity * GetFrameTime();
-        jumpVelocity -= gravity;
-
-        if (playerHeight <= 0.0f) {
-          playerHeight = 0.0f;
-          onGround = true;
-          jumpVelocity = 0.0f;
-        }
-
-        camera.position.y = 2.0f + playerHeight * 50;
-        camera.target.y += jumpVelocity * GetFrameTime() * 50;
-      }
-    }
-
-    // Collision detection with blocks
-    for (auto &block : blockData) {
-      if (CheckCollisionBoxes(
-        BoundingBox{Vector3{ camera.position.x - 0.5f,
-                                 camera.position.y - 2.0f - 1.0f,
-                                 camera.position.z - 0.5f },
-                      Vector3{ camera.position.x + 0.5f,
-                                 camera.position.y - 2.0f + 1.0f,
-                                 camera.position.z + 0.5f }},
-        BoundingBox{Vector3{ block.pos.x - 0.5f,
-                                 block.pos.y - 0.5f,
-                                 block.pos.z - 0.5f },
-                      Vector3{ block.pos.x + 0.5f,
-                                 block.pos.y + 0.5f,
-                                 block.pos.z + 0.5f }})) camera.position = oldCamPos;
-    }
-    
     // Drawing
     BeginDrawing();
     // R3D Drawing
