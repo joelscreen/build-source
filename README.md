@@ -3,7 +3,7 @@
 A 3D RPG similar to cookie clicker with building and fighting aspects.
 
 ## Latest Version
-Version: Build alpha-0.0.1
+Version: Build alpha-0.0.1-test-1
 
 ## Overview
 Genre: RPG / Survival / Action
