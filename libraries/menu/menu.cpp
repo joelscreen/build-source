@@ -29,7 +29,7 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
           DrawText("Auto clicker", 190, 140, 20, BLACK);
           DrawText("$200", 225, 160, 20, BLACK);
         }
-        if (coins < 150) {
+        if (coins < 50) {
           DrawText("Bricks", 363, 140, 20, GRAY);
           DrawText("$50", 375, 160, 20, GRAY);
         }
