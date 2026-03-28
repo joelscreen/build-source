@@ -144,12 +144,18 @@ int main() {
                       Vector3{ block.pos.x + 0.5f,
                                  block.pos.y + 0.5f,
                                  block.pos.z + 0.5f }})) {
+        bool frontX = oldCamPos.x < camera.position.x && block.pos.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+        bool backX = oldCamPos.x > camera.position.x && block.pos.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+
+        bool frontZ = oldCamPos.z > camera.position.z && block.pos.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+        bool backZ = oldCamPos.z < camera.position.z && block.pos.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+
         // X-axis collision
-        if (oldCamPos.x < camera.position.x && block.pos.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+        if (frontX && !frontZ && !backZ) {
           camera.position.x -= 0.089997f;
           camera.target.y -= 0.089997f;
         }
-        else if (oldCamPos.x > camera.position.x && block.pos.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+        else if (backX && !frontZ && !backZ) {
           camera.position.x += 0.089997f;
           camera.target.y -= 0.089997f;
         }
@@ -174,13 +180,19 @@ int main() {
         }
 
         // Z-axis collision
-        if (oldCamPos.z > camera.position.z && block.pos.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+        if (frontZ && !frontX && !backX) {
           camera.position.z += 0.089997f;
           camera.target.y -= 0.089997f;
         }
-        else if (oldCamPos.z < camera.position.z && block.pos.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f) {
+        else if (backZ && !frontX && !backX) {
           camera.position.z -= 0.089997f;
           camera.target.y -= 0.089997f;
+        }
+
+        // Diagonal collision
+        if (frontX && frontZ) {
+          camera.position.x += 0.06364f;
+          camera.position.z += 0.06364f;
         }
       }
       float playerBottom = camera.position.y - 2.0f;
