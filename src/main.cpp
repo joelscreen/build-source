@@ -39,6 +39,8 @@ int main() {
   bool shouldClose = true;
   int blocks = 0;
   bool canJump = true;
+  Vector3 cubeLocation = { 0, cubeSize/2, 0 };
+  Vector3 shopkeeperLocation = {5, 1, 5};
 
   // ----- MESHES -----
 
@@ -210,10 +212,173 @@ int main() {
       float playerBottom = camera.position.y - 2.0f;
       float blockTop = block.pos.y + 0.5f;
       if (playerBottom != blockTop && playerBottom > 0) {
-        camera.position.y -= 0.05;
+        onGround = false;
       }
     }
     if (camera.position.y - 2.0f < 0) camera.position.y = 2.0f;
+
+    // Cube collision
+    if (CheckCollisionBoxes(
+      BoundingBox{Vector3{ camera.position.x - 0.5f,
+                               camera.position.y - 2.0f - 1.0f,
+                               camera.position.z - 0.5f },
+                    Vector3{ camera.position.x + 0.5f,
+                               camera.position.y - 2.0f + 1.0f,
+                               camera.position.z + 0.5f }},
+      BoundingBox{Vector3{ cubeLocation.z - 0.5f,
+                               cubeLocation.y - 0.5f,
+                               cubeLocation.z - 0.5f },
+                    Vector3{ cubeLocation.x + 0.5f,
+                               cubeLocation.y + 0.5f,
+                               cubeLocation.z + 0.5f }})) {
+      bool frontX = oldCamPos.x < camera.position.x && cubeLocation.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= cubeLocation.y + 0.5f;
+      bool backX = oldCamPos.x > camera.position.x && cubeLocation.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= cubeLocation.y + 0.5f;
+
+      bool frontZ = oldCamPos.z > camera.position.z && cubeLocation.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= cubeLocation.y + 0.5f;
+      bool backZ = oldCamPos.z < camera.position.z && cubeLocation.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= cubeLocation.y + 0.5f;
+
+      // X-axis collision
+      if (frontX && !frontZ && !backZ) {
+        camera.position.x -= 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+      else if (backX && !frontZ && !backZ) {
+        camera.position.x += 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+
+      // Y-axis collision
+      float playerBottom = camera.position.y - 2.0f;
+      float cubeTop = cubeLocation.y + 0.5f;
+
+      bool insideX = camera.position.x >= cubeLocation.x - 0.5f &&
+                      camera.position.x <= cubeLocation.x + 0.5f;
+
+      bool insideZ = camera.position.z >= cubeLocation.z - 0.5f &&
+                      camera.position.z <= cubeLocation.z + 0.5f;
+
+      if (insideX && insideZ && playerBottom <= cubeTop + 0.1f && playerBottom >= cubeTop - 0.2f) {
+        camera.position.y = cubeTop + 2.0f;
+        onGround = true;
+        jumpVelocity = 0.0f;
+      }
+      if (camera.position.y - 2.0f < 0.0f) {
+        camera.position.y = 2.0f;
+      }
+
+      // Z-axis collision
+      if (frontZ && !frontX && !backX) {
+        camera.position.z += 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+      else if (backZ && !frontX && !backX) {
+        camera.position.z -= 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+
+      // Diagonal collision
+      if (frontX && frontZ) {
+        camera.position.x += 0.06364f;
+        camera.position.z += 0.06364f;
+      }
+      if (backX && backZ) {
+        camera.position.x -= 0.06364f;
+        camera.position.z -= 0.06364f;
+      }
+      if (frontX && backZ) {
+        camera.position.x += 0.06364f;
+        camera.position.z -= 0.06364f;
+      }
+      if (backX && frontZ) {
+        camera.position.x -= 0.06364f;
+        camera.position.z += 0.06364f;
+      }
+    }
+    float playerBottom = camera.position.y - 2.0f;
+    float cubeTop = cubeLocation.y + 0.5f;
+    
+    // Shopkeeper collision
+    if (CheckCollisionBoxes(
+      BoundingBox{Vector3{ camera.position.x - 0.5f,
+                               camera.position.y - 2.0f - 1.0f,
+                               camera.position.z - 0.5f },
+                    Vector3{ camera.position.x + 0.5f,
+                               camera.position.y - 2.0f + 1.0f,
+                               camera.position.z + 0.5f }},
+      BoundingBox{Vector3{ shopkeeperLocation.x - 0.5f,
+                               shopkeeperLocation.y + 1.0f - 1.0f,
+                               shopkeeperLocation.z - 0.5f },
+                    Vector3{ shopkeeperLocation.x + 0.5f,
+                               shopkeeperLocation.y + 1.0f + 1.0f,
+                               shopkeeperLocation.z + 0.5f }})) {
+      bool frontX = oldCamPos.x < camera.position.x && shopkeeperLocation.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= shopkeeperLocation.y + 1.0f;
+      bool backX = oldCamPos.x > camera.position.x && shopkeeperLocation.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= shopkeeperLocation.y + 1.0f;
+
+      bool frontZ = oldCamPos.z > camera.position.z && shopkeeperLocation.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= shopkeeperLocation.y + 1.0f;
+      bool backZ = oldCamPos.z < camera.position.z && shopkeeperLocation.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= shopkeeperLocation.y + 1.0f;
+
+      // X-axis collision
+      if (frontX && !frontZ && !backZ) {
+        camera.position.x -= 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+      else if (backX && !frontZ && !backZ) {
+        camera.position.x += 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+
+      // Y-axis collision
+      float playerBottom = camera.position.y - 2.0f;
+      float shopkeeperTop = shopkeeperLocation.y + 1.0f;
+
+      bool insideX = camera.position.x >= shopkeeperLocation.x - 0.5f &&
+                      camera.position.x <= shopkeeperLocation.x + 0.5f;
+
+      bool insideZ = camera.position.z >= shopkeeperLocation.z - 0.5f &&
+                      camera.position.z <= shopkeeperLocation.z + 0.5f;
+
+      if (insideX && insideZ && playerBottom <= shopkeeperTop + 0.1f && playerBottom >= shopkeeperTop) {
+        camera.position.y = shopkeeperTop + 2.0f;
+        onGround = true;
+        jumpVelocity = 0.0f;
+      }
+      if (camera.position.y - 2.0f < 0.0f) {
+        camera.position.y = 2.0f;
+      }
+
+      // Z-axis collision
+      if (frontZ && !frontX && !backX) {
+        camera.position.z += 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+      else if (backZ && !frontX && !backX) {
+        camera.position.z -= 0.089997f;
+        camera.target.y -= 0.089997f;
+      }
+
+      // Diagonal collision
+      if (frontX && frontZ) {
+        camera.position.x += 0.06364f;
+        camera.position.z += 0.06364f;
+      }
+      if (backX && backZ) {
+        camera.position.x -= 0.06364f;
+        camera.position.z -= 0.06364f;
+      }
+      if (frontX && backZ) {
+        camera.position.x += 0.06364f;
+        camera.position.z -= 0.06364f;
+      }
+      if (backX && frontZ) {
+        camera.position.x -= 0.06364f;
+        camera.position.z += 0.06364f;
+      }
+    }
+    // Gravity
+    float shopkeeperTop = shopkeeperLocation.y + 1.0f;
+    if (!onGround) {
+      camera.position.y -= 0.05;
+    }
 
     // Updating bounding boxes
     BoundingBox cubeBox = cube.aabb;
@@ -253,8 +418,8 @@ int main() {
     // R3D Drawing
     R3D_Begin(camera);
     R3D_DrawMesh(plane, planeMaterial, Vector3{0, 0, 0}, 1.0f);
-    R3D_DrawMesh(cube, cubeMaterial, Vector3{0, cubeSize / 2, 0}, 1.0f);
-    R3D_DrawMesh(shopkeeper, shopMaterial, Vector3{5, 1, 5}, 1.0f);
+    R3D_DrawMesh(cube, cubeMaterial, cubeLocation, 1.0f);
+    R3D_DrawMesh(shopkeeper, shopMaterial, shopkeeperLocation, 1.0f);
     for (auto &pos_index : blockData) {
       R3D_DrawMesh(block, blockMaterial,
                    pos_index.pos,
