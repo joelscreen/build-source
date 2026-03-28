@@ -194,6 +194,18 @@ int main() {
           camera.position.x += 0.06364f;
           camera.position.z += 0.06364f;
         }
+        if (backX && backZ) {
+          camera.position.x -= 0.06364f;
+          camera.position.z -= 0.06364f;
+        }
+        if (frontX && backZ) {
+          camera.position.x += 0.06364f;
+          camera.position.z -= 0.06364f;
+        }
+        if (backX && frontZ) {
+          camera.position.x -= 0.06364f;
+          camera.position.z += 0.06364f;
+        }
       }
       float playerBottom = camera.position.y - 2.0f;
       float blockTop = block.pos.y + 0.5f;
