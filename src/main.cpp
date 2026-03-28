@@ -77,7 +77,7 @@ int main() {
   R3D_ENVIRONMENT_SET(ambient, ambient);
   */
 
-  R3D_ENVIRONMENT_SET(ambient.color, Color{18, 18, 18, 0});
+  R3D_ENVIRONMENT_SET(ambient.color, Color{10, 10, 10, 0});
 
   // ----- LIGHTS -----
 
