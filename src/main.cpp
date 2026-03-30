@@ -408,10 +408,10 @@ int main() {
     }
 
     // Placing Blocks
-    PlaceBlocks(camera, maxBlockDistance, blockData, blockSize, blocks);
+    PlaceBlocks(camera, maxBlockDistance, blockData, blockSize, blocks, menu);
     
     // Breaking Blocks
-    BreakBlocks(camera, maxBlockDistance, blockData, blockSize, blocks);
+    BreakBlocks(camera, maxBlockDistance, blockData, blockSize, blocks, menu);
 
     // Drawing
     BeginDrawing();

@@ -11,7 +11,7 @@ struct BLOCKS {
   Vector3 pos;
 };
 
-void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks) {
+void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks, bool menu) {
   if (blocks > 0) {
     Vector2 screenCenter = {400, 300};
     Ray blockPos = GetMouseRay(screenCenter, camera);
@@ -52,7 +52,7 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
 
       DrawCubeWires(newPos, 1.01f, 1.01f, 1.01f, BLACK);
 
-      if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+      if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && !menu) {
           blockData.push_back(BLOCKS{std::round(newPos.x / blockSize) * blockSize, newPos.y, std::round(newPos.z / blockSize) * blockSize});
           blocks--;
           return;
@@ -66,7 +66,7 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
       int y = std::round(point.y / blockSize) * blockSize;
       int z = std::round(point.z / blockSize) * blockSize;
 
-      if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+      if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) && !menu) {
         BLOCKS pos = BLOCKS{(float)x, (float)y + 0.5f, (float)z};
         blockData.push_back(pos);
         blocks--;
@@ -112,7 +112,7 @@ void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blo
   }
 }
 
-void BreakBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks) {
+void BreakBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks, bool menu) {
   Vector2 screenCenter = {400, 300};
   Ray ray = GetMouseRay(screenCenter, camera);
 
@@ -135,7 +135,7 @@ void BreakBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
     }
   }
 
-  if (closestBlock && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+  if (closestBlock && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !menu) {
     blocks++;
 
     blockData.erase(
