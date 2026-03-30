@@ -8,6 +8,7 @@
 
 int main() {
   // ----- SETTING UP THE SCREEN -----
+  SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(800, 600, "Build alpha-0.0.2-test-2");
   SetTargetFPS(60);
 
@@ -41,6 +42,10 @@ int main() {
   bool canJump = true;
   Vector3 cubeLocation = { 0, cubeSize/2, 0 };
   Vector3 shopkeeperLocation = {5, 1, 5};
+  bool isShopMoved = false;
+  Vector2 shopToMouseOffset;
+  Vector2 shopPos = {30, 30};
+  Vector3 shopSize = {740, 540};
 
   // ----- MESHES -----
 
@@ -104,6 +109,8 @@ int main() {
   while (!WindowShouldClose() && shouldClose) {
 
     SetExitKey(KEY_NULL);
+
+    if (IsWindowResized()) R3D_SetResolution(GetScreenWidth(), GetScreenHeight());
 
     Vector3 oldCamPos = camera.position;
 
@@ -391,7 +398,7 @@ int main() {
 
     // Click detection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      Vector2 screenCenter = {400, 300};
+      Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
       Ray ray = GetMouseRay(screenCenter, camera);
 
       RayCollision cubeClick = GetRayCollisionBox(ray, cubeBox);
@@ -428,7 +435,7 @@ int main() {
     R3D_End();
 
     BeginMode3D(camera);
-    Vector2 screenCenter = {400, 300};
+    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
     Ray blockPos = GetMouseRay(screenCenter, camera);
     RayCollision blockPosPlane = GetRayCollisionQuad(
         blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
@@ -447,7 +454,7 @@ int main() {
     DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
 
     // Shop menu logic
-    DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump);
+    DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump, isShopMoved, shopToMouseOffset, shopPos, shopSize);
 
     // Pause menu logic
     DrawPauseMenu(pauseMenu, menu, shouldClose);

@@ -13,7 +13,7 @@ struct BLOCKS {
 
 void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks, bool menu) {
   if (blocks > 0) {
-    Vector2 screenCenter = {400, 300};
+    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
     Ray blockPos = GetMouseRay(screenCenter, camera);
 
     BLOCKS* closestBlock = nullptr;
@@ -77,7 +77,7 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
 }
 
 void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blockData, int blockSize, RayCollision blockPosPlane) {
-  Vector2 screenCenter = {400, 300};
+  Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
   Ray blockPos = GetMouseRay(screenCenter, camera);
 
   BLOCKS* closestBlock = nullptr;
@@ -113,7 +113,7 @@ void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blo
 }
 
 void BreakBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &blockData, int blockSize, int &blocks, bool menu) {
-  Vector2 screenCenter = {400, 300};
+  Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
   Ray ray = GetMouseRay(screenCenter, camera);
 
   BLOCKS* closestBlock = nullptr;
