@@ -33,13 +33,13 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
       DrawText("Auto clicker", shopPos.x + 160, shopPos.y + 110, 20, BLACK);
       DrawText("$200", shopPos.x + 195, shopPos.y + 130, 20, BLACK);
     }
-    if (coins < 50) {
+    if (coins < 20) {
       DrawText("Bricks", shopPos.x + 333, shopPos.y + 110, 20, GRAY);
       DrawText("$50", shopPos.x + 345, shopPos.y + 130, 20, GRAY);
     }
     else {
       DrawText("Bricks", shopPos.x + 333, shopPos.y + 110, 20, BLACK);
-      DrawText("$50", shopPos.x + 345, shopPos.y + 130, 20, BLACK);
+      DrawText("$20", shopPos.x + 345, shopPos.y + 130, 20, BLACK);
     }
     if (IsKeyDown(KEY_ESCAPE)) {
       openShopMenu = false;
@@ -64,8 +64,8 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
     }
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 325 &&
         GetMouseX() < 465 && GetMouseY() > 60 && GetMouseY() < 195 &&
-        coins >= 50) {
-      coins -= 50;
+        coins >= 20) {
+      coins -= 20;
       blocks++;
     }
   } else if (IsKeyPressed(KEY_ESCAPE) && !openShopMenu && !pauseMenu) {
