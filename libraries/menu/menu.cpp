@@ -18,7 +18,7 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
       }
       items_y += 140;
     }
-    if (coins < 100) {
+    if (coins < 100 || clickerVal >= 32) {
       DrawText("Double clicker", shopPos.x + 7, shopPos.y + 110, 20, GRAY);
       DrawText("$100", shopPos.x + 55, shopPos.y + 130, 20, GRAY);
     } else {
@@ -47,23 +47,23 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
       DisableCursor();
       canJump = true;
     }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 35 &&
-        GetMouseX() < 175 && GetMouseY() > 60 && GetMouseY() < 195 &&
-        coins >= 100) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > shopPos.x + 5 &&
+        GetMouseX() < shopPos.x + 145 && GetMouseY() > shopPos.y + 30 && GetMouseY() < shopPos.y + 165 &&
+        coins >= 100 && clickerVal < 32) {
       coins -= 100;
       doubleClicker = true;
       clickerVal *= 2;
     }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 180 &&
-        GetMouseX() < 320 && GetMouseY() > 60 && GetMouseY() < 195 &&
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > shopPos.x + 150 &&
+        GetMouseX() < shopPos.x + 290 && GetMouseY() > shopPos.y + 30 && GetMouseY() < shopPos.y + 165 &&
         coins >= 200 && framesTarget != 1) {
       autoClicker = true;
       coins -= 200;
       autoClickerVal += 1;
       framesTarget = std::max((int)(framesTarget / 2), 1);
     }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > 325 &&
-        GetMouseX() < 465 && GetMouseY() > 60 && GetMouseY() < 195 &&
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && GetMouseX() > shopPos.x + 295 &&
+        GetMouseX() < shopPos.x + 435 && GetMouseY() > shopPos.y + 30 && GetMouseY() < shopPos.y + 165 &&
         coins >= 20) {
       coins -= 20;
       blocks++;
