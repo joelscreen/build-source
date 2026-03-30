@@ -9,7 +9,7 @@
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(800, 600, "Build alpha-0.0.2-test-2");
+  InitWindow(800, 600, "Build alpha-0.0.2");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
@@ -19,7 +19,7 @@ int main() {
   // ----- VARIABLES -----
 
   float cubeSize = 1;
-  int coins = 100000; // CHANGE THIS LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  int coins = 0;
   bool openShopMenu = false;
   bool pauseMenu = false;
   bool menu = false;
