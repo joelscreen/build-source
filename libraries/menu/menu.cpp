@@ -35,7 +35,7 @@ void DrawShopMenu(bool &openShopMenu, int &coins, int &framesTarget, bool &menu,
     }
     if (coins < 20) {
       DrawText("Bricks", shopPos.x + 333, shopPos.y + 110, 20, GRAY);
-      DrawText("$50", shopPos.x + 345, shopPos.y + 130, 20, GRAY);
+      DrawText("$20", shopPos.x + 345, shopPos.y + 130, 20, GRAY);
     }
     else {
       DrawText("Bricks", shopPos.x + 333, shopPos.y + 110, 20, BLACK);
