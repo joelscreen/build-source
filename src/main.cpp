@@ -6,6 +6,8 @@
 
 #include "blocks/blocks.h"
 
+void MoveCameraForward(Camera3D camera, Vector3& position, float speed);
+
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -46,6 +48,8 @@ int main() {
   Vector2 shopToMouseOffset;
   Vector2 shopPos = {30, 30};
   Vector3 shopSize = {740, 540};
+  Vector3 zombiePos = {5, 1, -5};
+  int zombieHealth = 10;
 
   // ----- MESHES -----
 
@@ -54,9 +58,7 @@ int main() {
   R3D_Mesh cube = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
   R3D_Mesh shopkeeper = R3D_GenMeshCube(1, 2, 1);
   R3D_Mesh block = R3D_GenMeshCube(cubeSize, cubeSize, cubeSize);
-
-  // Default Material (only for debugging)
-  R3D_Material shopMaterial = R3D_GetDefaultMaterial();
+  R3D_Mesh zombieMesh = R3D_GenMeshCube(1, 2, 1);
 
   // Textures
   R3D_Material cubeMaterial = R3D_GetDefaultMaterial();
@@ -67,6 +69,8 @@ int main() {
 
   R3D_Material planeMaterial = R3D_GetDefaultMaterial();
   planeMaterial.albedo.texture = LoadTexture("../assets/planeTexture.png");
+
+  R3D_Material shopMaterial = R3D_GetDefaultMaterial();
 
   // Skybox
   /*
@@ -136,6 +140,42 @@ int main() {
         camera.position.y = 2.0f + playerY * 50;
         camera.target.y += jumpVelocity * GetFrameTime() * 50;
       }
+    }
+
+    // ----- MONSTERS -----
+    // Zombie 
+    // Hit by Player
+    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
+    Ray hit = GetMouseRay(screenCenter, camera);
+
+    BoundingBox zombieBox = zombieMesh.aabb;
+    zombieBox.min = Vector3Add(zombieBox.min, zombiePos);
+    zombieBox.max = Vector3Add(zombieBox.max, zombiePos);
+
+    RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
+
+    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      zombieHealth--;
+      MoveCameraForward(camera, zombiePos, 50.0f);
+    }
+    if (zombieHealth < 0) {
+      zombieHealth = 0;
+    }
+    // Pathfinding to Player
+    float dx = camera.position.x - zombiePos.x;
+    float dz = camera.position.z - zombiePos.z;
+
+    float distance = sqrt((dx * dx) + (dz * dz));
+
+    // Knockback
+    if (distance > 0.001f) {
+        dx /= distance;
+        dz /= distance;
+
+        float speed = 3.0f;
+
+        zombiePos.x += dx * speed * GetFrameTime();
+        zombiePos.z += dz * speed * GetFrameTime();
     }
 
     // Collision detection with blocks
@@ -393,8 +433,8 @@ int main() {
     cubeBox.max = Vector3Add(cubeBox.max, Vector3{0, cubeSize / 2, 0});
 
     BoundingBox shopBox = shopkeeper.aabb;
-    shopBox.min = Vector3Add(shopBox.min, Vector3{5, 1, 5});
-    shopBox.max = Vector3Add(shopBox.max, Vector3{5, 1, 5});
+    shopBox.min = Vector3Add(shopBox.min, shopkeeperLocation);
+    shopBox.max = Vector3Add(shopBox.max, shopkeeperLocation);
 
     // Click detection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -432,10 +472,11 @@ int main() {
                    pos_index.pos,
                    (float)blockSize);
     }
+    // Monster Drawing
+    if (zombieHealth > 0) R3D_DrawMesh(zombieMesh, planeMaterial, zombiePos, 1.0f);
     R3D_End();
 
     BeginMode3D(camera);
-    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
     Ray blockPos = GetMouseRay(screenCenter, camera);
     RayCollision blockPosPlane = GetRayCollisionQuad(
         blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
@@ -452,6 +493,9 @@ int main() {
 
     // Blocks text
     DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
+
+    // Zombie Health text
+    DrawText(TextFormat("Zombie Health: %d", zombieHealth), 10, 110, 30, BLACK);
 
     // Shop menu logic
     DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump, isShopMoved, shopToMouseOffset, shopPos, shopSize);
@@ -495,4 +539,11 @@ int main() {
   R3D_Close();
   CloseWindow();
   return 0;
+}
+void MoveCameraForward(Camera3D camera, Vector3& position, float speed) {
+    Vector3 forward = Vector3Normalize(Vector3Subtract(camera.target, position));
+    forward = Vector3Scale(forward, speed * GetFrameTime());
+
+    position = Vector3Subtract(position, forward);
+    position.y = 1.0f;
 }
