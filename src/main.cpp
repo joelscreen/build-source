@@ -6,7 +6,7 @@
 
 #include "blocks/blocks.h"
 
-void MoveCameraForward(Camera3D camera, Vector3& position, float speed);
+void MovePosForward(Camera3D camera, Vector3& position, float speed);
 
 int main() {
   // ----- SETTING UP THE SCREEN -----
@@ -50,6 +50,8 @@ int main() {
   Vector3 shopSize = {740, 540};
   Vector3 zombiePos = {5, 1, -5};
   int zombieHealth = 10;
+  float zombieKBTime = 0.0f;
+  bool isZombieHit = false;
 
   // ----- MESHES -----
 
@@ -143,7 +145,23 @@ int main() {
     }
 
     // ----- MONSTERS -----
-    // Zombie 
+    // Zombie
+    // Pathfinding to Player
+    float dx = camera.position.x - zombiePos.x;
+    float dz = camera.position.z - zombiePos.z;
+
+    float distance = sqrt((dx * dx) + (dz * dz));
+
+    // Knockback
+    if (distance > 0.001f && !pauseMenu) {
+        dx /= distance;
+        dz /= distance;
+
+        float speed = 3.0f;
+
+        zombiePos.x += dx * speed * GetFrameTime();
+        zombiePos.z += dz * speed * GetFrameTime();
+    }
     // Hit by Player
     Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
     Ray hit = GetMouseRay(screenCenter, camera);
@@ -154,28 +172,20 @@ int main() {
 
     RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
 
-    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !pauseMenu) {
       zombieHealth--;
-      MoveCameraForward(camera, zombiePos, 50.0f);
+      isZombieHit = true;
+    }
+    if (zombieKBTime < 1.0f && isZombieHit && !pauseMenu) {
+      MovePosForward(camera, zombiePos, 13.0f);
+      zombieKBTime += 0.1f;
+    }
+    if (zombieKBTime >= 1.0f) {
+      zombieKBTime = 0.0f;
+      isZombieHit = false;
     }
     if (zombieHealth < 0) {
       zombieHealth = 0;
-    }
-    // Pathfinding to Player
-    float dx = camera.position.x - zombiePos.x;
-    float dz = camera.position.z - zombiePos.z;
-
-    float distance = sqrt((dx * dx) + (dz * dz));
-
-    // Knockback
-    if (distance > 0.001f) {
-        dx /= distance;
-        dz /= distance;
-
-        float speed = 3.0f;
-
-        zombiePos.x += dx * speed * GetFrameTime();
-        zombiePos.z += dz * speed * GetFrameTime();
     }
 
     // Collision detection with blocks
@@ -540,8 +550,8 @@ int main() {
   CloseWindow();
   return 0;
 }
-void MoveCameraForward(Camera3D camera, Vector3& position, float speed) {
-    Vector3 forward = Vector3Normalize(Vector3Subtract(camera.target, position));
+void MovePosForward(Camera3D camera, Vector3& position, float speed) {
+    Vector3 forward = Vector3Normalize(Vector3Subtract(camera.position, position));
     forward = Vector3Scale(forward, speed * GetFrameTime());
 
     position = Vector3Subtract(position, forward);
