@@ -52,6 +52,9 @@ int main() {
   int zombieHealth = 10;
   float zombieKBTime = 0.0f;
   bool isZombieHit = false;
+  int playerHealth = 10;
+  int zombieHitCooldown = 0.0;
+  bool shouldZombieMove = true;
 
   // ----- MESHES -----
 
@@ -153,7 +156,7 @@ int main() {
     float distance = sqrt((dx * dx) + (dz * dz));
 
     // Knockback
-    if (distance > 0.001f && !pauseMenu) {
+    if (distance > 0.001f && !pauseMenu && shouldZombieMove) {
         dx /= distance;
         dz /= distance;
 
@@ -186,6 +189,22 @@ int main() {
     }
     if (zombieHealth < 0) {
       zombieHealth = 0;
+    }
+    // Hit by Zombie
+    if (distance < 2.8f && zombieHitCooldown == 0.0f) {
+      playerHealth--;
+      zombieHitCooldown += 1.0;
+    }
+    if (zombieHitCooldown > 0.0f) {
+      zombieHitCooldown += 1.0;
+      shouldZombieMove = false;
+    }
+    if (zombieHitCooldown >= GetFPS()) {
+      zombieHitCooldown = 0.0f;
+      shouldZombieMove = true;
+    }
+    if (playerHealth <= 0) {
+      shouldClose = false;
     }
 
     // Collision detection with blocks
@@ -506,6 +525,9 @@ int main() {
 
     // Zombie Health text
     DrawText(TextFormat("Zombie Health: %d", zombieHealth), 10, 110, 30, BLACK);
+
+    // Player Health text
+    DrawText(TextFormat("Player Health: %d", playerHealth), 10, 160, 30, BLACK);
 
     // Shop menu logic
     DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump, isShopMoved, shopToMouseOffset, shopPos, shopSize);
