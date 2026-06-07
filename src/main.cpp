@@ -12,7 +12,7 @@ void MovePosForward(Camera3D camera, Vector3& position, float speed);
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(800, 600, "Build alpha-0.0.3-test-1");
+  InitWindow(800, 600, "Build alpha-0.0.3-test-2");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
