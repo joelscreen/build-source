@@ -3,6 +3,7 @@
 #include <vector>
 #include "menu/menu.h"
 #include <iostream>
+#include <cmath>
 
 #include "blocks/blocks.h"
 
@@ -11,7 +12,7 @@ void MovePosForward(Camera3D camera, Vector3& position, float speed);
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(800, 600, "Build alpha-0.0.2");
+  InitWindow(800, 600, "Build alpha-0.0.3-test-1");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
@@ -49,12 +50,19 @@ int main() {
   Vector2 shopPos = {30, 30};
   Vector3 shopSize = {740, 540};
   Vector3 zombiePos = {5, 1, -5};
-  int zombieHealth = 10;
+  float zombieHealth = 10;
   float zombieKBTime = 0.0f;
   bool isZombieHit = false;
   int playerHealth = 10;
   int zombieHitCooldown = 0.0;
   bool shouldZombieMove = true;
+  float playerHitCooldown = 0.0f;
+  int cooldownIndicatorX = -50;
+  int perfectHitStartX = GetRandomValue(60, 70);
+  int perfectHitEndX = GetRandomValue(90, 100);
+  bool perfectHit = false;
+  Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
+  bool onCooldown = false;
 
   // ----- MESHES -----
 
@@ -123,6 +131,8 @@ int main() {
 
     Vector3 oldCamPos = camera.position;
 
+    perfectHit = false;
+
     if (!menu) {
       UpdateCamera(&camera, CAMERA_FIRST_PERSON);
     }
@@ -147,86 +157,31 @@ int main() {
       }
     }
 
-    // ----- MONSTERS -----
-    // Zombie
-    // Pathfinding to Player
-    float dx = camera.position.x - zombiePos.x;
-    float dz = camera.position.z - zombiePos.z;
-
-    float distance = sqrt((dx * dx) + (dz * dz));
-
-    // Knockback
-    if (distance > 0.001f && !pauseMenu && shouldZombieMove) {
-        dx /= distance;
-        dz /= distance;
-
-        float speed = 3.0f;
-
-        zombiePos.x += dx * speed * GetFrameTime();
-        zombiePos.z += dz * speed * GetFrameTime();
-    }
-    // Hit by Player
-    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
-    Ray hit = GetMouseRay(screenCenter, camera);
-
-    BoundingBox zombieBox = zombieMesh.aabb;
-    zombieBox.min = Vector3Add(zombieBox.min, zombiePos);
-    zombieBox.max = Vector3Add(zombieBox.max, zombiePos);
-
-    RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
-
-    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !pauseMenu) {
-      zombieHealth--;
-      isZombieHit = true;
-    }
-    if (zombieKBTime < 1.0f && isZombieHit && !pauseMenu) {
-      MovePosForward(camera, zombiePos, 13.0f);
-      zombieKBTime += 0.1f;
-    }
-    if (zombieKBTime >= 1.0f) {
-      zombieKBTime = 0.0f;
-      isZombieHit = false;
-    }
-    if (zombieHealth < 0) {
-      zombieHealth = 0;
-    }
-    // Hit by Zombie
-    if (distance < 2.8f && zombieHitCooldown == 0.0f) {
-      playerHealth--;
-      zombieHitCooldown += 1.0;
-    }
-    if (zombieHitCooldown > 0.0f) {
-      zombieHitCooldown += 1.0;
-      shouldZombieMove = false;
-    }
-    if (zombieHitCooldown >= GetFPS()) {
-      zombieHitCooldown = 0.0f;
-      shouldZombieMove = true;
-    }
-    if (playerHealth <= 0) {
-      shouldClose = false;
-    }
-
     // Collision detection with blocks
+    Vector3 closestBlock = {999999.0f, 999999.0f, 9999999.0f};
     for (auto &block : blockData) {
-      if (CheckCollisionBoxes(
+      if (sqrt(std::pow(block.pos.x-camera.position.x, 2) + std::pow(block.pos.y-camera.position.y, 2) + std::pow(block.pos.z-camera.position.z, 2)) < sqrt(std::pow(closestBlock.x-camera.position.x, 2) + std::pow(closestBlock.y-camera.position.y, 2) + std::pow(closestBlock.z-camera.position.z, 2))) {
+        closestBlock = block.pos;
+      }
+    }
+    if (CheckCollisionBoxes(
         BoundingBox{Vector3{ camera.position.x - 0.5f,
                                  camera.position.y - 2.0f - 1.0f,
                                  camera.position.z - 0.5f },
                       Vector3{ camera.position.x + 0.5f,
                                  camera.position.y - 2.0f + 1.0f,
                                  camera.position.z + 0.5f }},
-        BoundingBox{Vector3{ block.pos.x - 0.5f,
-                                 block.pos.y - 0.5f,
-                                 block.pos.z - 0.5f },
-                      Vector3{ block.pos.x + 0.5f,
-                                 block.pos.y + 0.5f,
-                                 block.pos.z + 0.5f }})) {
-        bool frontX = oldCamPos.x < camera.position.x && block.pos.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
-        bool backX = oldCamPos.x > camera.position.x && block.pos.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+        BoundingBox{Vector3{ closestBlock.x - 0.5f,
+                                 closestBlock.y - 0.5f,
+                                 closestBlock.z - 0.5f },
+                      Vector3{ closestBlock.x + 0.5f,
+                                 closestBlock.y + 0.5f,
+                                 closestBlock.z + 0.5f }})) {
+        bool frontX = oldCamPos.x < camera.position.x && closestBlock.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
+        bool backX = oldCamPos.x > camera.position.x && closestBlock.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
 
-        bool frontZ = oldCamPos.z > camera.position.z && block.pos.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
-        bool backZ = oldCamPos.z < camera.position.z && block.pos.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= block.pos.y + 0.5f;
+        bool frontZ = oldCamPos.z > camera.position.z && closestBlock.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
+        bool backZ = oldCamPos.z < camera.position.z && closestBlock.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
 
         // X-axis collision
         if (frontX && !frontZ && !backZ) {
@@ -240,18 +195,21 @@ int main() {
 
         // Y-axis collision
         float playerBottom = camera.position.y - 2.0f;
-        float blockTop = block.pos.y + 0.5f;
+        float blockTop = closestBlock.y + 0.5f;
 
-        bool insideX = camera.position.x >= block.pos.x - 0.5f &&
-                        camera.position.x <= block.pos.x + 0.5f;
+        bool insideX = camera.position.x >= closestBlock.x - 0.5f &&
+                          camera.position.x <= closestBlock.x + 0.5f;
 
-        bool insideZ = camera.position.z >= block.pos.z - 0.5f &&
-                        camera.position.z <= block.pos.z + 0.5f;
+        bool insideZ = camera.position.z >= closestBlock.z - 0.5f &&
+                        camera.position.z <= closestBlock.z + 0.5f;
 
         if (insideX && insideZ && playerBottom <= blockTop + 0.1f && playerBottom >= blockTop - 0.2f) {
           camera.position.y = blockTop + 2.0f;
           onGround = true;
           jumpVelocity = 0.0f;
+        }
+        else {
+          onGround = false;
         }
         if (camera.position.y - 2.0f < 0.0f) {
           camera.position.y = 2.0f;
@@ -284,14 +242,13 @@ int main() {
           camera.position.x -= 0.06364f;
           camera.position.z += 0.06364f;
         }
+        playerBottom = camera.position.y - 2.0f;
+        blockTop = closestBlock.y + 0.5f;
+        if (round(playerBottom) != blockTop && playerBottom > 0) {
+          onGround = false;
+        }
+        if (camera.position.y - 2.0f < 0) camera.position.y = 2.0f;
       }
-      float playerBottom = camera.position.y - 2.0f;
-      float blockTop = block.pos.y + 0.5f;
-      if (playerBottom != blockTop && playerBottom > 0) {
-        onGround = false;
-      }
-    }
-    if (camera.position.y - 2.0f < 0) camera.position.y = 2.0f;
 
     // Cube collision
     if (CheckCollisionBoxes(
@@ -514,8 +471,26 @@ int main() {
     EndMode3D();
 
     // Crosshair
-    DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, GRAY);
-    DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, GRAY);
+    Color transGray = Color{ 130, 130, 130, 180 };
+    Color transBlue = Color{ 0, 121, 241, 180 };
+    DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, transGray);
+    DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, transGray);
+
+    // cooldown temp
+    // ----- COOLDOWN -----
+    if (!menu && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+      onCooldown = true;
+    }
+    if (onCooldown) {
+      // Cooldown bar
+      DrawRectangle((GetScreenWidth()/2)-50, (GetScreenHeight()/2)+20, 100, 13, transGray);
+
+      // Cooldown line indicator
+      DrawLine((GetScreenWidth()/2)+cooldownIndicatorX, (GetScreenHeight()/2)+20, ((GetScreenWidth()/2)+cooldownIndicatorX), (GetScreenHeight()/2)+33, DARKGRAY);
+
+      // Perfect hit bar
+      DrawRectangle(((GetScreenWidth()/2)-50)+perfectHitStartX, (GetScreenHeight()/2)+20, perfectHitEndX-perfectHitStartX, 13, transBlue);
+    }
 
     // Coins text
     DrawText(TextFormat("Coins: $%d", coins), 10, 10, 30, BLACK);
@@ -524,7 +499,7 @@ int main() {
     DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
 
     // Zombie Health text
-    DrawText(TextFormat("Zombie Health: %d", zombieHealth), 10, 110, 30, BLACK);
+    DrawText(TextFormat("Zombie Health: %.1f", zombieHealth), 10, 110, 30, BLACK);
 
     // Player Health text
     DrawText(TextFormat("Player Health: %d", playerHealth), 10, 160, 30, BLACK);
@@ -536,6 +511,115 @@ int main() {
     DrawPauseMenu(pauseMenu, menu, shouldClose);
 
     EndDrawing();
+
+    // ----- COOLDOWN -----
+    if (!menu && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+      onCooldown = true;
+    }
+    if (onCooldown) {
+      if (cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        perfectHit = true;
+      }
+      // Cooldown bar
+      DrawRectangle((GetScreenWidth()/2)-50, (GetScreenHeight()/2)+20, 100, 13, transGray);
+
+      // Cooldown line indicator
+      DrawLine((GetScreenWidth()/2)+cooldownIndicatorX, (GetScreenHeight()/2)+20, ((GetScreenWidth()/2)+cooldownIndicatorX), (GetScreenHeight()/2)+33, DARKGRAY);
+      if (cooldownIndicatorX >= 50) {
+        perfectHitStartX = GetRandomValue(30, 70);
+        perfectHitEndX = GetRandomValue(90, 100);
+        cooldownIndicatorX = -50;
+        onCooldown = false;
+      }
+      cooldownIndicatorX += 1.8;
+
+      // Perfect hit bar
+      DrawRectangle(((GetScreenWidth()/2)-50)+perfectHitStartX, (GetScreenHeight()/2)+20, perfectHitEndX-perfectHitStartX, 13, transBlue);
+    }
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+      if (cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        perfectHit = true;
+      }
+      else {
+        cooldownIndicatorX = -50;
+      }
+    }
+
+    // ----- MONSTERS -----
+    // Zombie
+    // Pathfinding to Player
+    float dx = camera.position.x - zombiePos.x;
+    float dz = camera.position.z - zombiePos.z;
+
+    float distance = sqrt((dx * dx) + (dz * dz));
+
+    // Knockback
+    if (distance > 0.001f && !pauseMenu && shouldZombieMove) {
+      dx /= distance;
+      dz /= distance;
+
+      float speed = 4.0f;
+
+      zombiePos.x += dx * speed * GetFrameTime();
+      zombiePos.z += dz * speed * GetFrameTime();
+    }
+    // Hit by Player
+    Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
+    Ray hit = GetMouseRay(screenCenter, camera);
+
+    BoundingBox zombieBox = zombieMesh.aabb;
+    zombieBox.min = Vector3Add(zombieBox.min, zombiePos);
+    zombieBox.max = Vector3Add(zombieBox.max, zombiePos);
+
+    RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
+
+    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !pauseMenu && playerHitCooldown == 0.0f) {
+      if (perfectHit) {
+        zombieHealth -= 1.5;
+      }
+      else {
+        zombieHealth--;
+      }
+      playerHitCooldown += 0.1;
+      cooldownIndicatorX = -50;
+      perfectHitStartX = GetRandomValue(25, 40);
+
+      perfectHitEndX = GetRandomValue(45, 100);
+    }
+    if (playerHitCooldown > 0.0f) {
+      playerHitCooldown += GetFPS()/20;
+      MovePosForward(camera, zombiePos, 8.0f);
+    }
+    if (playerHitCooldown >= GetFPS()) {
+      playerHitCooldown = 0.0f;
+    }
+    if (zombieKBTime < 1.0f && isZombieHit && !pauseMenu) {
+      zombieKBTime += 0.2f;
+    }
+    if (zombieKBTime >= 1.0f) {
+      zombieKBTime = 0.0f;
+      isZombieHit = false;
+    }
+    if (zombieHealth < 0) {
+      zombieHealth = 0;
+    }
+    // Hit by Zombie
+    if (distance < 2.8f && zombieHitCooldown == 0.0f && zombieHealth > 0 && !pauseMenu) {
+      playerHealth--;
+      zombieHitCooldown += 1.0;
+    }
+    if (zombieHitCooldown > 0.0f && distance <= 2.8f) {
+      zombieHitCooldown += 1.0;
+      shouldZombieMove = false;
+    }
+    if (distance > 2.8f) shouldZombieMove = true;
+    if (zombieHitCooldown >= GetFPS()) {
+      zombieHitCooldown = 0.0f;
+      shouldZombieMove = true;
+    }
+    if (playerHealth <= 0) {
+      shouldClose = false;
+    }
 
     frames++;
 
