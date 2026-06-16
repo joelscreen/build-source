@@ -1,6 +1,6 @@
 # Build
 ## Concept
-A 3D RPG similar to cookie clicker with building and fighting aspects.
+A 3D RPG based on clicking with building and fighting aspects.
 
 ## Latest Version
 Version: Build alpha-0.0.3-test-2
@@ -23,6 +23,7 @@ After grinding for coins, the player would choose to either build things, fight 
 - Buying the double clicker and auto clicker
 - Breaking and placing blocks
 - Collision system
+- Fighting mechanics with cooldown
 
 ## Controls
 - WASD for forward, backward, left, and right movement
@@ -30,26 +31,17 @@ After grinding for coins, the player would choose to either build things, fight 
 - Escape for pausing the game or closing a menu
 - Right click to place Blocks
 - Left click to break Blocks
+- Left click on the enemy to hit
 
-## How to compile?
-### In order to compile build, you need:-
-- Raylib - https://github.com/raysan5/raylib
-- R3D - https://github.com/Bigfoot71/r3d
-- CMake - https://cmake.org/download
-- C++ compilor of your choice
-- Editor of your choice
-
-### After you have everything ready, run these commands in terminal
-```bash
-mkdir build
-cd build
-cmake -S .. -B .
-cmake --build .
-```
-
-After that, run the executable in the build folder
-
+## How to Play?
+- Click on Code > Download Zip
+- Extract the zip from your downloads folder
+- Open the "src" folder
+- You will find the game as "build_alpha.exe". Open it and play.
 ---
+
+*Source repository:- https://github.com/joelscreen/build-source*
+
 *Template by https://github.com/jensroth-git/r3dStarter*
 
 *Copyright © 2026 Joel Mendonca*
