@@ -63,6 +63,7 @@ int main() {
   bool perfectHit = false;
   Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
   bool onCooldown = false;
+  bool firstHit = false;
 
   // ----- MESHES -----
 
@@ -476,7 +477,6 @@ int main() {
     DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, transGray);
     DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, transGray);
 
-    // cooldown temp
     // ----- COOLDOWN -----
     if (!menu && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
       onCooldown = true;
@@ -515,6 +515,7 @@ int main() {
     // ----- COOLDOWN -----
     if (!menu && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
       onCooldown = true;
+      firstHit = true;
     }
     if (onCooldown) {
       if (cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -531,7 +532,7 @@ int main() {
         cooldownIndicatorX = -50;
         onCooldown = false;
       }
-      cooldownIndicatorX += 1.8;
+      cooldownIndicatorX += 2.5f * GetFrameTime() * 50;
 
       // Perfect hit bar
       DrawRectangle(((GetScreenWidth()/2)-50)+perfectHitStartX, (GetScreenHeight()/2)+20, perfectHitEndX-perfectHitStartX, 13, transBlue);
@@ -563,6 +564,7 @@ int main() {
       zombiePos.x += dx * speed * GetFrameTime();
       zombiePos.z += dz * speed * GetFrameTime();
     }
+
     // Hit by Player
     Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
     Ray hit = GetMouseRay(screenCenter, camera);
@@ -573,25 +575,35 @@ int main() {
 
     RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
 
-    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !pauseMenu && playerHitCooldown == 0.0f) {
-      if (perfectHit) {
-        zombieHealth -= 1.5;
-      }
-      else {
-        zombieHealth--;
-      }
-      playerHitCooldown += 0.1;
-      cooldownIndicatorX = -50;
-      perfectHitStartX = GetRandomValue(25, 40);
+    if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !menu && firstHit && playerHitCooldown <= 0.0f) {
+      zombieHealth--;
+      playerHitCooldown = 0.5;
+    }
+    else if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !menu && playerHitCooldown >= 0.0f
+        && !(cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))) {
+      playerHitCooldown = 0.5;
+    }
+    else if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !menu) {
+      float damage = 1.0f;
 
+      if (perfectHit) {
+        damage = 1.5f;
+        playerHitCooldown = 0.5;
+      }
+
+      zombieHealth -= damage;
+      
+      cooldownIndicatorX = -50;
+
+      perfectHitStartX = GetRandomValue(25, 40);
       perfectHitEndX = GetRandomValue(45, 100);
     }
-    if (playerHitCooldown > 0.0f) {
-      playerHitCooldown += GetFPS()/20;
-      MovePosForward(camera, zombiePos, 8.0f);
-    }
-    if (playerHitCooldown >= GetFPS()) {
-      playerHitCooldown = 0.0f;
+    if (playerHitCooldown > 0.0f){
+      playerHitCooldown -= GetFrameTime();
+
+      if (playerHitCooldown < 0.0f) {
+        playerHitCooldown = 0.0f;
+      }
     }
     if (zombieKBTime < 1.0f && isZombieHit && !pauseMenu) {
       zombieKBTime += 0.2f;
@@ -643,6 +655,7 @@ int main() {
         coins++;
       }
     }
+    firstHit = false;
   }
 
   // ----- UNLOADING AND CLOSING -----
