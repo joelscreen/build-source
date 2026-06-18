@@ -46,9 +46,9 @@ void PlaceBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> &b
           Vector3Scale(closestHit.normal, (float)blockSize)
       );
 
-    int x = std::round(newPos.x / blockSize) * blockSize;
-    int y = std::round(newPos.y / blockSize) * blockSize;
-    int z = std::round(newPos.z / blockSize) * blockSize;
+      int x = std::round(newPos.x / blockSize) * blockSize;
+      int y = std::round(newPos.y / blockSize) * blockSize;
+      int z = std::round(newPos.z / blockSize) * blockSize;
 
       DrawCubeWires(newPos, 1.01f, 1.01f, 1.01f, BLACK);
 
