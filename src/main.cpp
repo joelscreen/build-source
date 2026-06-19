@@ -13,6 +13,7 @@ void MovePosForward(Camera3D camera, Vector3& position, float speed);
 struct ENEMIES {
   Vector3 pos;
   int health;
+  Vector3 knockbackVelocity;
 };
 
 int main() {
@@ -61,7 +62,7 @@ int main() {
   int playerHealth = 10;
   int zombieHitCooldown = 0.0;
   bool shouldZombieMove = true;
-  float playerHitCooldown = 0.0f;
+  float playerHitCooldown = 0.5f;
   int cooldownIndicatorX = -50;
   int perfectHitStartX = GetRandomValue(60, 70);
   int perfectHitEndX = GetRandomValue(90, 100);
@@ -619,9 +620,16 @@ int main() {
       float minDist = 2.5f;
 
       float dx = camera.position.x - enemy.pos.x;
+      float dy = camera.position.y - enemy.pos.y;
       float dz = camera.position.z - enemy.pos.z;
 
-      float distance = sqrt(dx*dx + dz*dz);
+      float distance = sqrt(dx*dx + dy*dy + dz*dz);
+
+      enemy.pos.x += enemy.knockbackVelocity.x * GetFrameTime();
+      enemy.pos.z += enemy.knockbackVelocity.z * GetFrameTime();
+
+      enemy.knockbackVelocity.x *= 0.95f;
+      enemy.knockbackVelocity.z *= 0.95f;
 
       if (distance > minDist && !pauseMenu && shouldZombieMove) {
         dx /= distance;
@@ -629,11 +637,58 @@ int main() {
 
         float speed = 4.0f;
 
-        enemy.pos.x += dx * speed * GetFrameTime();
-        enemy.pos.z += dz * speed * GetFrameTime();
-      }
+        Vector3 nextX = enemy.pos;
+        nextX.x += dx * speed * GetFrameTime();
 
-      // Knockback
+        bool hitX = false;
+
+        BoundingBox enemyBoxX = {
+            { nextX.x - 0.5f, nextX.y - 1.0f, nextX.z - 0.5f },
+            { nextX.x + 0.5f, nextX.y + 1.0f, nextX.z + 0.5f }
+        };
+
+        for (auto &block : blockData) {
+            BoundingBox blockBox = {
+                { block.pos.x - 0.5f, block.pos.y - 0.5f, block.pos.z - 0.5f },
+                { block.pos.x + 0.5f, block.pos.y + 0.5f, block.pos.z + 0.5f }
+            };
+
+            if (CheckCollisionBoxes(enemyBoxX, blockBox)) {
+                hitX = true;
+                break;
+            }
+        }
+
+        if (!hitX) {
+            enemy.pos.x = nextX.x;
+        }
+
+        Vector3 nextZ = enemy.pos;
+        nextZ.z += dz * speed * GetFrameTime();
+
+        bool hitZ = false;
+
+        BoundingBox enemyBoxZ = {
+            { nextZ.x - 0.5f, nextZ.y - 1.0f, nextZ.z - 0.5f },
+            { nextZ.x + 0.5f, nextZ.y + 1.0f, nextZ.z + 0.5f }
+        };
+
+        for (auto &block : blockData) {
+            BoundingBox blockBox = {
+                { block.pos.x - 0.5f, block.pos.y - 0.5f, block.pos.z - 0.5f },
+                { block.pos.x + 0.5f, block.pos.y + 0.5f, block.pos.z + 0.5f }
+            };
+
+            if (CheckCollisionBoxes(enemyBoxZ, blockBox)) {
+                hitZ = true;
+                break;
+            }
+        }
+
+        if (!hitZ) {
+            enemy.pos.z = nextZ.z;
+        }
+      }
 
       // Hit by Player
       Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
@@ -650,7 +705,6 @@ int main() {
       }
 
       if (zombieHit.hit && distance <= 4.0f && !menu && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && playerHitCooldown <= 0.0f) {
-
         float damage = 1.0f;
 
         if (perfectHit) {
@@ -658,6 +712,15 @@ int main() {
         }
 
         closestEnemyToPlayer->health -= damage;
+
+        // Knockback
+        Vector3 dir = Vector3Normalize(
+        Vector3Subtract(closestEnemyToPlayer->pos, camera.position));
+
+        closestEnemyToPlayer->knockbackVelocity.x = dir.x * 8.0f;
+        closestEnemyToPlayer->knockbackVelocity.z = dir.z * 8.0f;
+
+        // Reset cooldown
         playerHitCooldown = 0.5f;
 
         cooldownIndicatorX = -50;
@@ -665,20 +728,13 @@ int main() {
         perfectHitStartX = GetRandomValue(25, 40);
         perfectHitEndX = GetRandomValue(45, 100);
       }
-      if (zombieHit.hit && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && distance <= 4.0f && !menu && playerHitCooldown >= 0.0f
-          && !(cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-          || (cooldownIndicatorX+50 > perfectHitEndX)
-          && onCooldown) {
-        playerHitCooldown = 0.5;
+      if ((zombieHit.hit && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !menu && playerHitCooldown >= 0.0f)
+          && (!(cooldownIndicatorX+50 >= perfectHitStartX && cooldownIndicatorX+50 <= perfectHitEndX && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+          || (cooldownIndicatorX+50 > perfectHitEndX))
+          && (onCooldown)) {
+        playerHitCooldown = 0.5f;
       }
 
-      if (playerHitCooldown > 0.0f){
-        playerHitCooldown -= GetFrameTime();
-
-        if (playerHitCooldown < 0.0f) {
-          playerHitCooldown = 0.0f;
-        }
-      }
       if (zombieKBTime < 1.0f && isZombieHit && !pauseMenu) {
         zombieKBTime += 0.2f;
       }
@@ -702,6 +758,14 @@ int main() {
       }
       if (playerHealth <= 0) {
         shouldClose = false;
+      }
+    }
+
+    if (playerHitCooldown > 0.0f){
+      playerHitCooldown -= GetFrameTime();
+
+      if (playerHitCooldown < 0.0f) {
+        playerHitCooldown = 0.0f;
       }
     }
 
