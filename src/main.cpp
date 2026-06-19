@@ -18,7 +18,7 @@ struct ENEMIES {
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(800, 600, "Build alpha-0.0.3-test-2");
+  InitWindow(800, 600, "Build alpha-0.0.3-test-3");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
@@ -537,9 +537,6 @@ int main() {
 
     // Blocks text
     DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
-
-    // Zombie Health text
-    DrawText(TextFormat("Zombie Health: %.1f", zombieHealth), 10, 110, 30, BLACK);
 
     // Player Health text
     DrawText(TextFormat("Player Health: %d", playerHealth), 10, 160, 30, BLACK);
