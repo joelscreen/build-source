@@ -56,7 +56,6 @@ int main() {
   Vector2 shopPos = {30, 30};
   Vector3 shopSize = {740, 540};
   Vector3 zombiePos = {5, 1, -5};
-  float zombieHealth = 10;
   float zombieKBTime = 0.0f;
   bool isZombieHit = false;
   int playerHealth = 10;
@@ -539,7 +538,7 @@ int main() {
     DrawText(TextFormat("Blocks: %d", blocks), 10, 60, 30, BLACK);
 
     // Player Health text
-    DrawText(TextFormat("Player Health: %d", playerHealth), 10, 160, 30, BLACK);
+    DrawText(TextFormat("Player Health: %d", playerHealth), 10, 110, 30, BLACK);
 
     // Shop menu logic
     DrawShopMenu(openShopMenu, coins, framesTarget, menu, doubleClicker, clickerVal, autoClicker, autoClickerVal, pauseMenu, blocks, canJump, isShopMoved, shopToMouseOffset, shopPos, shopSize);
@@ -687,11 +686,8 @@ int main() {
         zombieKBTime = 0.0f;
         isZombieHit = false;
       }
-      if (zombieHealth < 0) {
-        zombieHealth = 0;
-      }
       // Hit by Zombie
-      if (distance < 2.8f && zombieHitCooldown == 0.0f && zombieHealth > 0 && !pauseMenu) {
+      if (distance < 2.8f && zombieHitCooldown == 0.0f && !pauseMenu) {
         playerHealth--;
         zombieHitCooldown += 1.0;
       }
