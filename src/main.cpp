@@ -70,7 +70,8 @@ int main() {
   Vector2 screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
   bool onCooldown = false;
   bool firstHit = false;
-  std::vector<ENEMIES> enemyData = {{{5, 1, -5}, 10}, {{10, 1, 10}, 10}};
+  std::vector<ENEMIES> enemyData = {};
+  bool lookAtEnemy = false;
 
   // ----- MESHES -----
 
@@ -128,6 +129,17 @@ int main() {
   camera.up = {0, 1, 0};
   camera.fovy = 70;
   camera.projection = CAMERA_PERSPECTIVE;
+
+  // ----- SPAWNING -----
+  
+  // Zombie Spawning
+  for (int i = 0; i < GetRandomValue(3, 20); i++) {
+    float x = GetRandomValue(80, -50);
+    float y = 1.0f;
+    float z = GetRandomValue(80, -50);
+
+    enemyData.push_back({Vector3{float{x}, float{y}, float{z}}, 10});
+  }
 
   // ----- GAMELOOP -----
 
@@ -495,10 +507,17 @@ int main() {
     // Crosshair
     Color transGray = Color{ 130, 130, 130, 180 };
     Color transBlue = Color{ 0, 121, 241, 180 };
-    DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, transGray);
-    DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, transGray);
+    Color transBlack = Color{ 0, 0, 0, 180 };
+    if (!lookAtEnemy) {
+      DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, transGray);
+      DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, transGray);
+    }
+    else if (lookAtEnemy) {
+      DrawLine(GetScreenWidth()/2, (GetScreenHeight()/2)-10, GetScreenWidth()/2, (GetScreenHeight()/2)+10, transBlack);
+      DrawLine((GetScreenWidth()/2)-10, GetScreenHeight()/2, (GetScreenWidth()/2)+10, GetScreenHeight()/2, transBlack);
+    }
 
-    // ----- COOLDOWN -----
+    // ----- COOLDOWN DRAWING -----
     if (!menu && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
       onCooldown = true;
     }
@@ -588,6 +607,7 @@ int main() {
     ENEMIES* closestEnemyToPlayer = nullptr;
     float closestDistance = 99999.0f;
 
+    lookAtEnemy = false;
     for (auto &enemy : enemyData) {
       float dx_path = enemy.pos.x - camera.position.x;
       float dy_path = enemy.pos.y - camera.position.y;
@@ -628,6 +648,10 @@ int main() {
       zombieBox.max = Vector3Add(zombieBox.max, closestEnemyToPlayer->pos);
 
       RayCollision zombieHit = GetRayCollisionBox(hit, zombieBox);
+
+      if (zombieHit.hit && distance <= 4.0f && !menu && playerHitCooldown <= 0.0f) {
+        lookAtEnemy = true;
+      }
 
       if (zombieHit.hit && distance <= 4.0f && !menu && IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && playerHitCooldown <= 0.0f) {
 
