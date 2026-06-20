@@ -21,7 +21,7 @@ struct ENEMIES {
 int main() {
   // ----- SETTING UP THE SCREEN -----
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-  InitWindow(800, 600, "Build alpha-0.0.3-test-3");
+  InitWindow(800, 600, "Build alpha-0.0.3-test-4");
   SetTargetFPS(60);
 
   R3D_Init(800, 600);
