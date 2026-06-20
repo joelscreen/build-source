@@ -14,6 +14,8 @@ struct ENEMIES {
   Vector3 pos;
   int health;
   Vector3 knockbackVelocity;
+  float jumpVelocity = 0.0f;
+  bool onGround = true;
 };
 
 int main() {
@@ -177,10 +179,10 @@ int main() {
     }
 
     // Collision detection with blocks
-    Vector3 closestEnemy = {999999.0f, 999999.0f, 9999999.0f};
+    Vector3 closestBlock = {999999.0f, 999999.0f, 9999999.0f};
     for (auto &block : blockData) {
-      if (sqrt(std::pow(block.pos.x-camera.position.x, 2) + std::pow(block.pos.y-camera.position.y, 2) + std::pow(block.pos.z-camera.position.z, 2)) < sqrt(std::pow(closestEnemy.x-camera.position.x, 2) + std::pow(closestEnemy.y-camera.position.y, 2) + std::pow(closestEnemy.z-camera.position.z, 2))) {
-        closestEnemy = block.pos;
+      if (sqrt(std::pow(block.pos.x-camera.position.x, 2) + std::pow(block.pos.y-camera.position.y, 2) + std::pow(block.pos.z-camera.position.z, 2)) < sqrt(std::pow(closestBlock.x-camera.position.x, 2) + std::pow(closestBlock.y-camera.position.y, 2) + std::pow(closestBlock.z-camera.position.z, 2))) {
+        closestBlock = block.pos;
       }
     }
     if (CheckCollisionBoxes(
@@ -190,17 +192,17 @@ int main() {
                       Vector3{ camera.position.x + 0.5f,
                                  camera.position.y - 2.0f + 1.0f,
                                  camera.position.z + 0.5f }},
-        BoundingBox{Vector3{ closestEnemy.x - 0.5f,
-                                 closestEnemy.y - 0.5f,
-                                 closestEnemy.z - 0.5f },
-                      Vector3{ closestEnemy.x + 0.5f,
-                                 closestEnemy.y + 0.5f,
-                                 closestEnemy.z + 0.5f }})) {
-        bool frontX = oldCamPos.x < camera.position.x && closestEnemy.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= closestEnemy.y + 0.5f;
-        bool backX = oldCamPos.x > camera.position.x && closestEnemy.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= closestEnemy.y + 0.5f;
+        BoundingBox{Vector3{ closestBlock.x - 0.5f,
+                                 closestBlock.y - 0.5f,
+                                 closestBlock.z - 0.5f },
+                      Vector3{ closestBlock.x + 0.5f,
+                                 closestBlock.y + 0.5f,
+                                 closestBlock.z + 0.5f }})) {
+        bool frontX = oldCamPos.x < camera.position.x && closestBlock.x - 0.5f > camera.position.x && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
+        bool backX = oldCamPos.x > camera.position.x && closestBlock.x + 0.5f < camera.position.x && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
 
-        bool frontZ = oldCamPos.z > camera.position.z && closestEnemy.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= closestEnemy.y + 0.5f;
-        bool backZ = oldCamPos.z < camera.position.z && closestEnemy.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= closestEnemy.y + 0.5f;
+        bool frontZ = oldCamPos.z > camera.position.z && closestBlock.z + 0.5f < camera.position.z && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
+        bool backZ = oldCamPos.z < camera.position.z && closestBlock.z - 0.5f > camera.position.z && oldCamPos.y - 2.0f <= closestBlock.y + 0.5f;
 
         // X-axis collision
         if (frontX && !frontZ && !backZ) {
@@ -214,13 +216,13 @@ int main() {
 
         // Y-axis collision
         float playerBottom = camera.position.y - 2.0f;
-        float blockTop = closestEnemy.y + 0.5f;
+        float blockTop = closestBlock.y + 0.5f;
 
-        bool insideX = camera.position.x >= closestEnemy.x - 0.5f &&
-                          camera.position.x <= closestEnemy.x + 0.5f;
+        bool insideX = camera.position.x >= closestBlock.x - 0.5f &&
+                          camera.position.x <= closestBlock.x + 0.5f;
 
-        bool insideZ = camera.position.z >= closestEnemy.z - 0.5f &&
-                        camera.position.z <= closestEnemy.z + 0.5f;
+        bool insideZ = camera.position.z >= closestBlock.z - 0.5f &&
+                        camera.position.z <= closestBlock.z + 0.5f;
 
         if (insideX && insideZ && playerBottom <= blockTop + 0.1f && playerBottom >= blockTop - 0.2f) {
           camera.position.y = blockTop + 2.0f;
@@ -262,7 +264,7 @@ int main() {
           camera.position.z += 0.06364f;
         }
         playerBottom = camera.position.y - 2.0f;
-        blockTop = closestEnemy.y + 0.5f;
+        blockTop = closestBlock.y + 0.5f;
         if (round(playerBottom) != blockTop && playerBottom > 0) {
           onGround = false;
         }
@@ -631,11 +633,66 @@ int main() {
       enemy.knockbackVelocity.x *= 0.95f;
       enemy.knockbackVelocity.z *= 0.95f;
 
-      if (distance > minDist && !pauseMenu && shouldZombieMove) {
+      if (distance > minDist && !pauseMenu && shouldZombieMove && distance <= 32) {
         dx /= distance;
         dz /= distance;
 
         float speed = 4.0f;
+
+        // Determine what the enemy is standing on (default: floor at y = 1.0f)
+        float groundHeight = 1.0f;
+        for (auto &gBlock : blockData) {
+          bool overlapX = enemy.pos.x >= gBlock.pos.x - 0.5f && enemy.pos.x <= gBlock.pos.x + 0.5f;
+          bool overlapZ = enemy.pos.z >= gBlock.pos.z - 0.5f && enemy.pos.z <= gBlock.pos.z + 0.5f;
+          float blockTop = gBlock.pos.y + 1.0f; // block half-height 0.5 + enemy half-height 0.5
+
+          if (overlapX && overlapZ && blockTop > groundHeight && blockTop <= enemy.pos.y + 0.5f) {
+            groundHeight = blockTop;
+          }
+        }
+        
+        bool isInsideBlock = false;
+        float insideBlockTop = 1.0f;
+
+        for (auto &gBlock : blockData) {
+          bool overlapX = enemy.pos.x >= gBlock.pos.x - 0.5f && enemy.pos.x <= gBlock.pos.x + 0.5f;
+          bool overlapZ = enemy.pos.z >= gBlock.pos.z - 0.5f && enemy.pos.z <= gBlock.pos.z + 0.5f;
+          float blockTop = gBlock.pos.y + 1.0f; // block half-height 0.5 + enemy half-height 0.5
+          float blockBottom = gBlock.pos.y - 0.5f;
+
+          if (overlapX && overlapZ && blockTop > groundHeight && blockTop <= enemy.pos.y + 0.5f) {
+            groundHeight = blockTop;
+          }
+
+          // Enemy is stuck inside this block's vertical extent
+          if (overlapX && overlapZ &&
+              enemy.pos.y - 1.0f < gBlock.pos.y + 0.5f &&
+              enemy.pos.y + 1.0f > blockBottom) {
+            isInsideBlock = true;
+            if (blockTop > insideBlockTop) {
+              insideBlockTop = blockTop;
+            }
+          }
+        }
+
+        // Stuck-in-block safety net: teleport above it
+        if (isInsideBlock) {
+          enemy.pos.y = insideBlockTop+0.50000014f;
+          enemy.jumpVelocity = 0.0f;
+          enemy.onGround = true;
+        }
+
+        // Gravity / jump integration — runs ONCE per enemy per frame
+        if (!enemy.onGround) {
+          enemy.pos.y += enemy.jumpVelocity;
+          enemy.jumpVelocity -= 0.01f;
+
+          if (enemy.pos.y <= groundHeight) {
+            enemy.pos.y = groundHeight;
+            enemy.jumpVelocity = 0.0f;
+            enemy.onGround = true;
+          }
+        }
 
         Vector3 nextX = enemy.pos;
         nextX.x += dx * speed * GetFrameTime();
@@ -648,15 +705,31 @@ int main() {
         };
 
         for (auto &block : blockData) {
-            BoundingBox blockBox = {
-                { block.pos.x - 0.5f, block.pos.y - 0.5f, block.pos.z - 0.5f },
-                { block.pos.x + 0.5f, block.pos.y + 0.5f, block.pos.z + 0.5f }
-            };
+          BoundingBox blockBox = {
+            { block.pos.x - 0.5f, block.pos.y - 0.5f, block.pos.z - 0.5f },
+            { block.pos.x + 0.5f, block.pos.y + 0.5f, block.pos.z + 0.5f }
+          };
 
-            if (CheckCollisionBoxes(enemyBoxX, blockBox)) {
-                hitX = true;
+          if (CheckCollisionBoxes(enemyBoxX, blockBox)) {
+            bool blockAbove = false;
+          
+            for (auto &otherBlock : blockData) {
+              if (otherBlock.pos.x == block.pos.x && otherBlock.pos.y == block.pos.y + 1 && otherBlock.pos.z == block.pos.z) {
+                blockAbove = true;
                 break;
+              }
             }
+          
+            if (!blockAbove && enemy.onGround) {
+              enemy.jumpVelocity = 0.15f;
+              enemy.onGround = false;
+            }
+            else {
+                hitX = true;
+            }
+          
+            break;
+          }
         }
 
         if (!hitX) {
@@ -680,7 +753,23 @@ int main() {
             };
 
             if (CheckCollisionBoxes(enemyBoxZ, blockBox)) {
-                hitZ = true;
+                bool blockAbove = false;
+
+                for (auto &otherBlock : blockData) {
+                  if (otherBlock.pos.x == block.pos.x && otherBlock.pos.y == block.pos.y + 1 && otherBlock.pos.z == block.pos.z) {
+                    blockAbove = true;
+                    break;
+                  }
+                }
+
+                if (!blockAbove && enemy.onGround) {
+                  enemy.jumpVelocity = 0.15f;
+                  enemy.onGround = false;
+                }
+                else {
+                    hitZ = true;
+                }
+
                 break;
             }
         }
