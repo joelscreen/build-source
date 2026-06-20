@@ -74,6 +74,10 @@ int main() {
   bool firstHit = false;
   std::vector<ENEMIES> enemyData = {};
   bool lookAtEnemy = false;
+  int maxPlayerHealth = 10;
+  float regenTimer = 0.0f;
+  float regenInterval = 6.0f;
+  int regenAmount = 1;
 
   // ----- MESHES -----
 
@@ -861,6 +865,18 @@ int main() {
       if (playerHitCooldown < 0.0f) {
         playerHitCooldown = 0.0f;
       }
+    }
+    // Regeneration
+    if (playerHealth > 0 && playerHealth < maxPlayerHealth) {
+      regenTimer += GetFrameTime();
+
+      if (regenTimer >= regenInterval) {
+        playerHealth += regenAmount;
+        if (playerHealth > maxPlayerHealth) playerHealth = maxPlayerHealth;
+        regenTimer = 0.0f;
+      }
+    } else {
+      regenTimer = 0.0f;
     }
 
     frames++;
