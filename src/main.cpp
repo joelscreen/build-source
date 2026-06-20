@@ -166,7 +166,7 @@ int main() {
 
       if (!onGround) {
         playerY += jumpVelocity * GetFrameTime();
-        jumpVelocity -= gravity;
+        jumpVelocity -= gravity * GetFrameTime() * 60;
 
         if (playerY <= 0.0f) {
           playerY = 0.0f;
