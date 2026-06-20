@@ -133,7 +133,7 @@ int main() {
   camera.position = {0, 2, 2};
   camera.target = {0, 0, 0};
   camera.up = {0, 1, 0};
-  camera.fovy = 70;
+  camera.fovy = 90;
   camera.projection = CAMERA_PERSPECTIVE;
 
   // ----- SPAWNING -----
@@ -154,7 +154,22 @@ int main() {
 
     if (IsWindowResized()) R3D_SetResolution(GetScreenWidth(), GetScreenHeight());
 
+    float aspect = (float)GetScreenWidth() / (float)GetScreenHeight();
+    float targetHorizontalFOV = 90.0f;
+    float vFovRad = 2.0f * atanf(tanf((targetHorizontalFOV * DEG2RAD) / 2.0f) / aspect);
+    camera.fovy = vFovRad * RAD2DEG;
+
     Vector3 oldCamPos = camera.position;
+
+    if (IsKeyPressed(KEY_F11)) {
+      ToggleBorderlessWindowed();
+      R3D_SetResolution(GetScreenWidth(), GetScreenHeight());
+
+      float aspect = (float)GetScreenWidth() / (float)GetScreenHeight();
+      float targetHorizontalFOV = 90.0f;
+      float vFovRad = 2.0f * atanf(tanf((targetHorizontalFOV * DEG2RAD) / 2.0f) / aspect);
+      camera.fovy = vFovRad * RAD2DEG;
+    }
 
     perfectHit = false;
 
