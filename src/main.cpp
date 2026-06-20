@@ -594,6 +594,11 @@ int main() {
     // ----- MONSTERS -----
     // Zombie
     // Delete dead enemies
+    for (auto &enemy : enemyData) {
+      if (enemy.health == 0) {
+        coins += GetRandomValue(5, 15);
+      }
+    }
     enemyData.erase(
       std::remove_if(enemyData.begin(), enemyData.end(),
         [](const ENEMIES& e) {
