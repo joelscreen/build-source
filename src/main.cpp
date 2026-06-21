@@ -161,6 +161,8 @@ int main() {
 
     Vector3 oldCamPos = camera.position;
 
+    screenCenter = {float(GetScreenWidth())/2, float(GetScreenHeight())/2};
+
     if (IsKeyPressed(KEY_F11)) {
       ToggleBorderlessWindowed();
       R3D_SetResolution(GetScreenWidth(), GetScreenHeight());
@@ -518,11 +520,11 @@ int main() {
     R3D_End();
 
     BeginMode3D(camera);
-    Ray blockPos = GetMouseRay(screenCenter, camera);
-    RayCollision blockPosPlane = GetRayCollisionQuad(
-        blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
-        Vector3{1000, 0, -1000}, Vector3{-1000, 0, -1000});
-    DrawBlocks(camera, maxBlockDistance, blockData, blockSize, blockPosPlane);
+      Ray blockPos = GetMouseRay(screenCenter, camera);
+      RayCollision blockPosPlane = GetRayCollisionQuad(
+          blockPos, Vector3{-1000, 0, 1000}, Vector3{1000, 0, 1000},
+          Vector3{1000, 0, -1000}, Vector3{-1000, 0, -1000});
+      DrawBlocks(camera, maxBlockDistance, blockData, blockSize, blockPosPlane);
     EndMode3D();
 
     // Crosshair

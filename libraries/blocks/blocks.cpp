@@ -94,6 +94,7 @@ void DrawBlocks(Camera3D camera, float maxBlockDistance, std::vector<BLOCKS> blo
     float maxDistance = fminf(blockPosBlock.distance, maxBlockDistance);
     if (blockPosBlock.hit && blockPosBlock.distance <= maxDistance) {
       Vector3 newPos = Vector3Add(blockPosition.pos, Vector3Scale(blockPosBlock.normal, (float)blockSize));
+      DrawCubeWires(newPos, 1.001f, 1.001f, 1.001f, BLACK);
       if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && closestBlock) {
         blockData.push_back(BLOCKS{newPos.x, newPos.y, newPos.z});
         return;
