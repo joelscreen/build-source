@@ -43,5 +43,3 @@ After grinding for coins, the player would choose to either build things, fight 
 *Source repository:- https://github.com/joelscreen/build-source*
 
 *Template by https://github.com/jensroth-git/r3dStarter*
-
-*Copyright © 2026 Joel Mendonca*
